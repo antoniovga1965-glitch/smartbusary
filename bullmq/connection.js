@@ -12,8 +12,16 @@
 // };
 
 // module.exports = reddisconnection;
+// const Redis = require('ioredis');
+
+// const reddisconnection = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+
+// module.exports = reddisconnection;
+
 const Redis = require('ioredis');
 
-const reddisconnection = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+const reddisconnection = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
+  maxRetriesPerRequest: null, 
+});
 
 module.exports = reddisconnection;
