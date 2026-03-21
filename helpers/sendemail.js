@@ -6,7 +6,6 @@ const crypto =require('crypto');
 require('dotenv').config();
 const bcrypt = require('bcrypt');
 const path = require('path');
-
 router.post('/emailreset',async(req,res)=>{
     const {email} = req.body;
 
