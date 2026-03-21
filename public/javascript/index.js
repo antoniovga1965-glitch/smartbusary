@@ -48,15 +48,21 @@ applynowhero.addEventListener("click", () => {
 });
 
 const registerlink = document.getElementById("registerlink");
-registerpage.scrollIntoView({ behavior: "smooth" });
+
+
+
 registerlink.addEventListener("click", () => {
+  registerform.scrollIntoView({ behavior: "smooth" });
+  landingpage.classList.add('hidden')
+  registerpage.classList.remove('hidden')
+  registerform.classList.remove("hidden");
   loginpage.classList.add("hidden");
   startssection.classList.add("hidden");
   howitworksection.classList.add("hidden");
   oldnewway.classList.add("hidden");
   features.classList.add("hidden");
-  registerform.classList.remove("hidden");
-  registerpage.classList.remove("hidden");
+  
+  
 });
 
 
