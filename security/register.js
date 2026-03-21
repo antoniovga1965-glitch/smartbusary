@@ -38,6 +38,7 @@ const registerlimitor = limit({
   windowMs: 1000 * 60 * 1000,
   max: 1000,
   message: { message: "Too many login attempts try again later" },
+  trustProxy: true,
 });
 
 router.post(
