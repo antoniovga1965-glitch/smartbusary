@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "start": "npx prisma migrate deploy && node server.js",
+    "build": "npx prisma generate"
+  },
   "dependencies": {
     "@prisma/client": "^6.19.2",
     "@tensorflow/tfjs-node": "^4.10.0",
