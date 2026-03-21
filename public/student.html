@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet" />
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .syne {
+            font-family: 'Syne', sans-serif;
+        }
+    </style>
+    <title>Student Dashboard — Smart Bursary</title>
+</head>
+
+<body class="bg-gray-800 text-green-50 overflow-x-hidden">
+    <div class="min-h-screen">
+
+        <!-- navbar -->
+        <nav
+            class="fixed top-0 left-0 right-0 z-50 py-4 px-6 flex items-center justify-between border-b border-green-800 bg-green-950/90 backdrop-blur-md">
+            <div id='logo' class="flex items-center gap-2">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L4 6V12C4 16.4 7.4 20.5 12 22C16.6 20.5 20 16.4 20 12V6L12 2Z" fill="#16a34a"
+                        stroke="#4ade80" stroke-width="0.5" />
+                    <path d="M9 12L11 14L15 10" stroke="#fff" stroke-width="1.8" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                <span class="syne font-extrabold text-lg tracking-widest text-green-50">SMART BURSARY</span>
+            </div>
+            <div>
+                <button id="logoutstudent"
+                    class="border border-red-400/50 text-red-400 syne font-bold text-sm px-5 py-2.5 rounded-lg hover:bg-red-400/10 transition-colors">Log
+                    out</button>
+            </div>
+        </nav>
+
+
+        <!-- hero section -->
+        <section class="min-h-screen flex items-center pt-28 pb-20 px-6">
+            <div class="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+                <div>
+                    <div
+                        class="inline-flex items-center gap-2 bg-green-800/50 border border-green-700 rounded-full px-4 py-1.5 mb-6">
+                        <span>🇰🇪</span>
+                        <span class="text-xs tracking-widest uppercase text-green-300 font-semibold">Bursary Applicant
+                            Portal</span>
+                    </div>
+                    <h2 class="syne font-bold text-4xl md:text-5xl leading-tight mb-5 text-green-50">Welcome to Smart
+                        Bursary distribution app</h2>
+                    <p class="text-green-400 text-base leading-relaxed mb-8 max-w-md">Kenya's only AI-powered bursary
+                        system built to ensure every shilling reach the right student</p>
+                    <button id="startapplication"
+                        class="bg-green-900 text-white syne font-bold text-base px-8 py-4 rounded-lg hover:bg-green-500 transition-all hover:-translate-y-0.5">Start
+                        application</button>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4">
+                    <div
+                        class="bg-green-900 border border-green-700 rounded-xl p-6 hover:border-yellow-500 transition-all duration-300 hover:-translate-y-1">
+                        <h3 class="syne font-extrabold text-2xl text-yellow-500 mb-2">26 AI powered Sieves</h3>
+                        <p class="text-sm text-green-400 leading-relaxed">This ensures that no fraud happens during
+                            bursary application thus facilitating equity</p>
+                    </div>
+                    <div
+                        class="bg-green-900 border border-green-700 rounded-xl p-6 hover:border-yellow-500 transition-all duration-300 hover:-translate-y-1">
+                        <h2 class="syne font-extrabold text-2xl text-yellow-400 mb-2">95% fraud check</h2>
+                        <p class="text-sm text-green-400 leading-relaxed">This is a proof which ensures that it works
+                            for every students thus ensuring equity in resource allocation</p>
+                    </div>
+                    <div
+                        class="bg-green-900 border border-green-700 rounded-xl p-6 hover:border-yellow-500 transition-all duration-300 hover:-translate-y-1">
+                        <h2 class="syne font-extrabold text-2xl text-yellow-400 mb-2">0 Ghost applicant</h2>
+                        <p class="text-sm text-green-400 leading-relaxed">Previous bursary systems have many ghost works
+                            which led to the birth of smart bursary which cuts this chain 100%</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- application journey -->
+        <div class="bg-green-900 border-t border-green-800 py-14 px-6">
+            <div class="max-w-4xl mx-auto">
+                <h3 class="syne font-extrabold text-2xl text-yellow-400 mb-8 text-center">Application journey</h3>
+                <ul class="grid grid-cols-2 md:grid-cols-4 gap-4 list-none">
+                    <li class="bg-green-950 border border-green-700 rounded-xl p-5 text-center">
+                        <div
+                            class="w-8 h-8 rounded-full bg-green-700 flex items-center justify-center syne font-bold text-sm text-green-200 mx-auto mb-3">
+                            1</div>
+                        <span class="text-sm font-medium text-green-200">Personal details</span>
+                    </li>
+                    <li class="bg-green-950 border border-green-700 rounded-xl p-5 text-center">
+                        <div
+                            class="w-8 h-8 rounded-full bg-green-700 flex items-center justify-center syne font-bold text-sm text-green-200 mx-auto mb-3">
+                            2</div>
+                        <span class="text-sm font-medium text-green-200">School information</span>
+                    </li>
+                    <li class="bg-green-950 border border-green-700 rounded-xl p-5 text-center">
+                        <div
+                            class="w-8 h-8 rounded-full bg-green-700 flex items-center justify-center syne font-bold text-sm text-green-200 mx-auto mb-3">
+                            3</div>
+                        <span class="text-sm font-medium text-green-200">Guardian information</span>
+                    </li>
+                    <li class="bg-green-950 border border-green-700 rounded-xl p-5 text-center">
+                        <div
+                            class="w-8 h-8 rounded-full bg-green-700 flex items-center justify-center syne font-bold text-sm text-green-200 mx-auto mb-3">
+                            4</div>
+                        <span class="text-sm font-medium text-green-200">Documents submit</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+
+        <!-- eligibility section -->
+        <section class="py-16 px-6">
+            <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-green-900 border border-green-700 rounded-2xl p-8">
+                    <h3 class="syne font-bold text-xs tracking-widest uppercase text-yellow-400 mb-5">Eligibility</h3>
+                    <ul class="flex flex-col gap-3 list-none">
+                        <li class="flex items-center gap-3 text-sm text-green-300"><span
+                                class="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></span>Must be a Kenyan citizen
+                        </li>
+                        <li class="flex items-center gap-3 text-sm text-green-300"><span
+                                class="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></span>Currently enrolled in
+                            high school</li>
+                        <li class="flex items-center gap-3 text-sm text-green-300"><span
+                                class="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></span>Have not received bursary
+                            this cycle</li>
+                        <li class="flex items-center gap-3 text-sm text-green-300"><span
+                                class="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></span>Guardian income below
+                            threshold</li>
+                    </ul>
+                </div>
+                <div class="bg-green-900 border border-green-700 rounded-2xl p-8">
+                    <h2 class="syne font-bold text-xs tracking-widest uppercase text-yellow-400 mb-5">How long it takes
+                        to apply</h2>
+                    <div class="flex items-center gap-4 mt-2">
+                        <span class="text-4xl">⏱</span>
+                        <p class="text-green-300 text-sm leading-relaxed">Application takes approximately <span
+                                class="text-green-50 font-semibold">10 minutes</span> to complete</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ready CTA -->
+        <div class="px-6 pb-16">
+            <div class="max-w-4xl mx-auto bg-green-800 border border-green-600 rounded-2xl p-10 text-center">
+                <h2 class="syne font-extrabold text-3xl mb-5 text-green-50">Ready to start application</h2>
+                <button id="startbtn"
+                    class="bg-green-600 text-white syne font-bold text-base px-8 py-4 rounded-lg hover:bg-green-500 transition-all hover:-translate-y-0.5">Start
+                    application</button>
+            </div>
+        </div>
+
+
+        <!-- form -->
+        <form id="applicantform" class="hidden" action="">
+            <div class="px-6 pb-24">
+                <div class="max-w-3xl mx-auto">
+
+                    <div class="text-center mb-12">
+                        <h1 class="syne font-extrabold text-4xl mb-4 text-green-50">Secondary application form</h1>
+
+
+
+                        <p
+                            class="text-sm text-red-300 bg-red-950/60 border border-red-800/50 rounded-xl px-6 py-4 leading-relaxed">
+                            ⚠️ Any form of applying with fake documents will result into total bursary cancelation and
+                            being banned from applying again</p>
+                    </div>
+                    <!-- personal details -->
+                    <fieldset class="border border-green-700 rounded-2xl p-8 mb-8 bg-green-900/40">
+                        <legend class="syne font-extrabold text-base text-yellow-400 tracking-widest uppercase px-3">
+                            Personal Details</legend>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Full
+                                names</label>
+                            <input type="text" id="nameinput" placeholder="Enter your full names"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Birth
+                                Certificate number</label>
+                            <input type="text" id="bithcertno"
+                                placeholder="Enter your correct entry no in your birth Certificate"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Gender</label>
+                            <select id="gender"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 focus:outline-none focus:border-green-400 transition-colors">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Rather not say">Rather not say</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Email address</label>
+                            <input type="tel" id="personalemail" placeholder="Enter your Guardians phone number"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">County
+                                Residence</label>
+                            <input type="text" id="Countyresidence" placeholder="Enter your County residence"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Sub-County</label>
+                            <input type="text" id="subcounty" placeholder="Enter your subcounty"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                        </div>
+
+                        <div class="mb-1">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Ward</label>
+                            <input type="text" id="wardlevel" placeholder="Enter your ward"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                        </div>
+                    </fieldset>
+
+
+                    <!-- school info -->
+                    <fieldset class="border border-green-700 rounded-2xl p-8 mb-8 bg-green-900/40">
+                        <legend class="syne font-extrabold text-base text-yellow-400 tracking-widest uppercase px-3">
+                            School
+                            infor</legend>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">School
+                                Name</label>
+                            <input type="text" id="schoolname" placeholder="Enter your School Name"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Primary
+                                School email</label>
+                            <input type="email" id="PrimarySchoolemail" placeholder="Enter your Primary School email"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Secondary
+                                School email</label>
+                            <input type="email" id="SecondarySchoolemail"
+                                placeholder="Enter your Secondary School email"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">County
+                                School is in</label>
+                            <input type="text" id="schoolcounty" placeholder="e.g Nairobi"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">School
+                                KCPE Code</label>
+                            <input type="text" id="kcpecode" placeholder="Enter your School KCPE Code"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">
+                               Assesment Number</label>
+                            <input type="text" id="Assesmentno" placeholder="Enter your Assesment Number"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">KCPE
+                                Year</label>
+                            <input type="number" id="KCPE Year" max="2026" placeholder="e.g 2023"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">KCPE
+                                Marks</label>
+                            <input type="number" id="kcpemarks" placeholder="Enter your KCPE Marks"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Current
+                                Form</label>
+                            <select id="currentform"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 focus:outline-none focus:border-green-400 transition-colors">
+                                <option value="Form 1">Form 1</option>
+                                <option value="Form 2">Form 2</option>
+                                <option value="Form 3">Form 3</option>
+                                <option value="Form 4">Form 4</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Admission
+                                Number</label>
+                            <input type="text" id="Admissionno" placeholder="Enter your Admission Number"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                        </div>
+
+                        <div class="mb-1">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">School
+                                Type</label>
+                            <select id="schooltype"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 focus:outline-none focus:border-green-400 transition-colors">
+                                <option value="National">National</option>
+                                <option value="Extra County">Extra County</option>
+                                <option value="County">County</option>
+                                <option value="Sub-county">Sub-county</option>
+                                <option value="Private">Private</option>
+                                <option value="Public">Public</option>
+                            </select>
+                        </div>
+                    </fieldset>
+
+
+                    <!-- guardian details -->
+                    <fieldset class="border border-green-700 rounded-2xl p-8 mb-8 bg-green-900/40">
+                        <legend class="syne font-extrabold text-base text-yellow-400 tracking-widest uppercase px-3">
+                            Guardian Details</legend>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Guardian
+                                full name</label>
+                            <input type="text" id="Guardianname" placeholder="Enter your Guardian full name"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Guardian
+                                KRA PIN</label>
+                            <input type="text" id="Guardiankrapin" placeholder="Enter your Guardian KRA pin"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Guardian
+                                phone number</label>
+                            <input type="tel" id="Guardianphoneno" placeholder="Enter your Guardian phone number"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Guardian
+                                National ID</label>
+                            <input type="number" id="GuardianID" placeholder="Enter your Guardian National ID"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Relationship
+                                to student</label>
+                            <select id="Relationshiptostudent"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 focus:outline-none focus:border-green-400 transition-colors">
+                                <option value="Father">Father</option>
+                                <option value="Mother">Mother</option>
+                                <option value="Guardian">Guardian</option>
+                                <option value="Relative">Relative</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Occupation</label>
+                            <input type="text" id="Occupation" placeholder="Enter your Guardian Occupation"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Guardian
+                                Sub-county / Location</label>
+                            <input type="text" id="guardianlocation" placeholder="e.g Westlands, Nairobi"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                        </div>
+
+                        <div class="mb-1">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Monthly
+                                income range</label>
+                            <select id="guardiansincome"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 focus:outline-none focus:border-green-400 transition-colors">
+                                <option value="Below 5,000 KES">Below 5,000 KES</option>
+                                <option value="5,000 – 15,000 KES">5,000 – 15,000 KES</option>
+                                <option value="15,000 – 30,000 KES">15,000 – 30,000 KES</option>
+                                <option value="Above 30,000 KES">Above 30,000 KES</option>
+                            </select>
+                        </div>
+                    </fieldset>
+
+
+                    <!-- household situation -->
+                    <fieldset class="border border-green-700 rounded-2xl p-8 mb-8 bg-green-900/40">
+                        <legend class="syne font-extrabold text-base text-yellow-400 tracking-widest uppercase px-3">
+                            Household Situation</legend>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Number
+                                of siblings</label>
+                            <input type="number" id="numberofsiblings" placeholder="Enter the Number of your siblings"
+                                min="0" max="20"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Upload
+                                their birth certificate</label>
+                            <input type="file" id="numberofsiblingscert" multiple
+                                class="w-full bg-green-950/50 border-2 border-dashed border-green-700 rounded-lg px-4 py-3 text-green-400 hover:border-green-400 transition-colors cursor-pointer file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:bg-green-700 file:text-green-50 file:text-sm file:font-semibold file:cursor-pointer">
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Number
+                                currently in school</label>
+                            <input type="number" id="siblingsinschool"
+                                placeholder="Enter Number of siblings currently in school" min="0" max="20"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Orphan
+                                status</label>
+                            <select id="prphanstatus"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 focus:outline-none focus:border-green-400 transition-colors">
+                                <option value="Not orphan">Not orphan</option>
+                                <option value="Partial orphan">Partial orphan</option>
+                                <option value="Orphan">Orphan</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Disability
+                                status</label>
+
+                            <select id="disabilitystatus"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 focus:outline-none focus:border-green-400 transition-colors">
+                                <option value="disabled">disabled</option>
+                                <option value="not disabled">not disabled</option>
+                            </select>
+                            
+                        </div>
+
+                        <div class="mb-1">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Housing
+                                situation</label>
+                            <select id="housingstatus"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-green-50 focus:outline-none focus:border-green-400 transition-colors">
+                                <option value="Owned">Owned house</option>
+                                <option value="Rented">Rented</option>
+                                <option value="Living with relative">Living with relative</option>
+                                <option value="Informal settlement">Informal settlement</option>
+                            </select>
+                        </div>
+                    </fieldset>
+
+
+                    <!-- document uploads -->
+                    <fieldset class="border border-green-700 rounded-2xl p-8 mb-8 bg-green-900/40">
+                        <legend class="syne font-extrabold text-base text-yellow-400 tracking-widest uppercase px-3">
+                            Document Uploads</legend>
+
+                        <p
+                            class="text-xs text-green-400 mb-8 bg-green-950/60 border border-green-800 rounded-lg px-4 py-3">
+                            Upload clear photos or scanned copies. Accepted formats: JPG, PNG, PDF.</p>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Birth
+                                Certificate</label>
+                            <input type="file" id="birthcertificate"
+                                class="w-full bg-green-950/50 border-2 border-dashed border-green-700 rounded-lg px-4 py-3 text-green-400 hover:border-green-400 transition-colors cursor-pointer file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:bg-green-700 file:text-green-50 file:text-sm file:font-semibold file:cursor-pointer">
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Admission
+                                Letter</label>
+                            <input type="file" id="AdmissionLetter"
+                                class="w-full bg-green-950/50 border-2 border-dashed border-green-700 rounded-lg px-4 py-3 text-green-400 hover:border-green-400 transition-colors cursor-pointer file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:bg-green-700 file:text-green-50 file:text-sm file:font-semibold file:cursor-pointer">
+                        </div>
+
+                        <div class="mb-5">
+                            <label class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Fee
+                                Structure</label>
+                            <input type="file" id="Fee Structure"
+                                class="w-full bg-green-950/50 border-2 border-dashed border-green-700 rounded-lg px-4 py-3 text-green-400 hover:border-green-400 transition-colors cursor-pointer file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:bg-green-700 file:text-green-50 file:text-sm file:font-semibold file:cursor-pointer">
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">School
+                                ID / Report Card</label>
+                            <input type="file" id="SchoolIDReportCard"
+                                class="w-full bg-green-950/50 border-2 border-dashed border-green-700 rounded-lg px-4 py-3 text-green-400 hover:border-green-400 transition-colors cursor-pointer file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:bg-green-700 file:text-green-50 file:text-sm file:font-semibold file:cursor-pointer">
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Guardian
+                                National ID</label>
+                            <input type="file" id="GuardianNationalID"
+                                class="w-full bg-green-950/50 border-2 border-dashed border-green-700 rounded-lg px-4 py-3 text-green-400 hover:border-green-400 transition-colors cursor-pointer file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:bg-green-700 file:text-green-50 file:text-sm file:font-semibold file:cursor-pointer">
+                        </div>
+
+
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Proof
+                                of income</label>
+                            <input type="file" id="Proofofincome"
+                                class="w-full bg-green-950/50 border-2 border-dashed border-green-700 rounded-lg px-4 py-3 text-green-400 hover:border-green-400 transition-colors cursor-pointer file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:bg-green-700 file:text-green-50 file:text-sm file:font-semibold file:cursor-pointer">
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Death
+                                Certificate(s)</label>
+                            <input type="file" id="DeathCertificates" multiple
+                                class="w-full bg-green-950/50 border-2 border-dashed border-green-700 rounded-lg px-4 py-3 text-green-400 hover:border-green-400 transition-colors cursor-pointer file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:bg-green-700 file:text-green-50 file:text-sm file:font-semibold file:cursor-pointer">
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Disability
+                                Certificate</label>
+                            <input type="file" id="DisabilityCertificates"
+                                class="w-full bg-green-950/50 border-2 border-dashed border-green-700 rounded-lg px-4 py-3 text-green-400 hover:border-green-400 transition-colors cursor-pointer file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:bg-green-700 file:text-green-50 file:text-sm file:font-semibold file:cursor-pointer">
+                        </div>
+
+                        <div class="mb-5">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Chief's
+                                Letter</label>
+                            <input type="file" id="ChiefsLetter"
+                                class="w-full bg-green-950/50 border-2 border-dashed border-green-700 rounded-lg px-4 py-3 text-green-400 hover:border-green-400 transition-colors cursor-pointer file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:bg-green-700 file:text-green-50 file:text-sm file:font-semibold file:cursor-pointer">
+                        </div>
+
+                        <div class="mb-1">
+                            <label
+                                class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Passport
+                                Photo</label>
+                            <input type="file" id="PassportPhoto" accept="image/*" capture="user"
+                                class="w-full bg-green-950/50 border-2 border-dashed border-green-700 rounded-lg px-4 py-3 text-green-400 hover:border-green-400 transition-colors cursor-pointer file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:bg-green-700 file:text-green-50 file:text-sm file:font-semibold file:cursor-pointer">
+                        </div>
+                    </fieldset>
+
+
+                    <!-- declaration -->
+                    <div class="bg-green-900 border border-yellow-600/30 rounded-2xl p-8 mb-8">
+                        <h3 class="syne font-bold text-xs tracking-widest uppercase text-yellow-400 mb-6">Declaration
+                        </h3>
+                        <div class="flex items-start gap-4">
+                            <input type="radio" id="declarationcheck"
+                                class="mt-1 w-4 h-4 flex-shrink-0 cursor-pointer accent-green-500">
+                            <p class="text-sm text-green-300 leading-relaxed">All information provided in this
+                                application
+                                is true and accurate to the best of my knowledge. I understand that false information
+                                will
+                                result in disqualification and possible prosecution.</p>
+                        </div>
+                    </div>
+
+                    <button id="submitbtn" type="button"
+                        class="w-full bg-green-600 text-white syne font-bold text-lg py-4 rounded-xl hover:bg-green-500 transition-all hover:-translate-y-0.5">Submit
+                        Application</button>
+                    <p id="submittedresults" class="text-center text-sm text-green-400 mt-4"></p>
+
+
+                </div>
+            </div>
+        </form>
+
+
+        <!-- footer -->
+        <footer class="bg-[#030a06] border-t border-green/20 pt-16 pb-8 px-6">
+            <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+                <div class="">
+                    <h3 class="syne font-extrabold text-lg tracking-widest mb-1">Smart Bursary Portal</h3>
+                    <h3 class="text-gold text-sm font-semibold mb-4">Kenyas Country Fraud Detection</h3>
+                    <p class="text-md text-white">© 2026 Smart Bursary. All rights reserved.</p>
+                    <p class="text-md text-white mt-1">© 2026 Built for kenya 🇰🇪</p>
+                </div>
+                <div class="">
+                    <h2 class="syne font-bold text-xs tracking-[0.12em] uppercase text-gold mb-5">Navigate</h2>
+                    <ul class="list-none flex flex-col gap-3">
+                        <li><a href="#"
+                                class="text-muted text-sm hover:text-cream transition-colors no-underline">Home</a></li>
+                        <li><a href="#" class="text-muted text-sm hover:text-cream transition-colors no-underline">How
+                                it works</a></li>
+                        <li><a href="#"
+                                class="text-muted text-sm hover:text-cream transition-colors no-underline">Features</a>
+                        </li>
+                        <li><a href="#" class="text-muted text-sm hover:text-cream transition-colors no-underline">Apply
+                                now</a></li>
+                    </ul>
+                </div>
+                <div class="">
+                    <h2 class="syne font-bold text-xs tracking-[0.12em] uppercase text-gold mb-5">Contact</h2>
+                    <div class="flex flex-col gap-4">
+                        <div class="">
+                            <div class="text-[10px] uppercase tracking-widest text-white/25 mb-1">Email</div>
+                            <p class="text-muted text-sm">hello@smartbursary.co.ke</p>
+                        </div>
+                        <div class="">
+                            <div class="text-[10px] uppercase tracking-widest text-white/25 mb-1">Hotline</div>
+                            <p class="text-muted text-sm">Call us through <a href="tel:0727669032"
+                                    class="text-gold hover:text-cream transition-colors">0727669032</a></p>
+                        </div>
+                        <div class="">
+                            <h2 class="text-[10px] uppercase tracking-widest text-white/25 mb-1">For county Partnership
+                            </h2>
+                            <p class="text-muted text-sm">Call though <a href="#"
+                                    class="text-gold hover:text-cream transition-colors">click here</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+    <script type="module" src="/javascript/student.js"></script>
+</body>
+
+</html>

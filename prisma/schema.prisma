@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model registerd_users {
+  id                Int      @id @default(autoincrement())
+  registername      String
+  registeradmission String   @unique
+  registerschool    String
+  registercounty    String
+  registerpassword  String
+  email             String   @unique
+  role              String   @default("student")
+  token              String?
+  resetTokenExpiry    DateTime?
+  Created_at        DateTime @default(now())
+}
+
+model Application {
+  id                    String   @id @default(cuid())
+  status                String   @default("pending")
+   devicefingerprint     String? 
+   disabilitystatus  String
+  
+   Ipaddress             String
+    useragent           String?
+  filehashes           String[]
+  faceDescriptor        Float[]  @default([])
+  nameinput             String
+  bithcertno            String
+  gender                String
+  countyresidence       String
+  subcounty             String
+  wardlevel             String
+  schoolname            String
+  primarySchoolemail    String
+  secondarySchoolemail  String
+  schoolcounty          String
+  kcpecode              String
+  Assesmentno String
+  kcpeyear              Int
+  kcpemarks             Int
+  currentform           String
+  admissionno           String
+  schooltype            String
+  guardianname          String
+  guardianphoneno       String
+  guardianID            String
+  Guardian_krapin       String    
+  relationshiptostudent String
+  occupation            String
+  guardianlocation      String
+  guardiansincome       String
+  numberofsiblings      Int
+  siblingsinschool      Int
+  orphanstatus          String
+  housingstatus         String
+
+  
+  schoolverified        Boolean  @default(false)
+  kraverified           Boolean  @default(false)
+  fraudscore            Int      @default(0)
+  flags                 Json     @default("[]")
+
+  
+  createdate            DateTime @default(now())
+  updatedate             DateTime @updatedAt
+
+action                 String @default("not yet paid")
+  personalemail String @default("")
+
+  files                 ApplicationFiles?
+}
+
+model ApplicationFiles {
+  id                     String      @id @default(cuid())
+  applicationid          String      @unique
+  application            Application @relation(fields: [applicationid], references: [id])
+
+  birthcertificate       String
+  admissionletter        String
+  feestructure           String
+  schoolreport           String
+  guardiannationalid     String
+  proofofincome          String
+  disabilitycertificates String?
+  chiefsletter           String
+  passportphoto          String
+  DeathCertificates     String?
+  createdat              DateTime @default(now())
+}
+
+
+model budget {
+   id                     String      @id @default(cuid())
+BUDGETEDCOUNTY       String
+SETBUGET            Int
+FINANCIALYEAR      String
+    createdat              DateTime @default(now())
+}

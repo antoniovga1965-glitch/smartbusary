@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bg: '#050f0a', surface: '#0b1a12', green: '#006b3f',
+                        gbright: '#00c262', gold: '#c8a951', cream: '#edeae0', muted: '#7a9488',
+                    },
+                    fontFamily: { syne: ['Syne', 'sans-serif'], dm: ['DM Sans', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
+    <style>
+        html {
+            scroll-behavior: smooth
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif
+        }
+
+        .syne {
+            font-family: 'Syne', sans-serif
+        }
+
+        aside {
+            transition: right 0.35s cubic-bezier(.4, 0, .2, 1)
+        }
+    </style>
+    <title>Smart Bursary Portal</title>
+</head>
+
+<body class="bg-bg text-cream overflow-x-hidden">
+    <div class="min-h-screen">
+
+        <!-- navbar -->
+        <nav
+            class="fixed top-0 left-0 right-0 z-50 py-4 px-6 flex items-center justify-between border-b border-white/[0.06] bg-bg/90 backdrop-blur-md">
+            <div id="logo" class="flex items-center gap-2">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L4 6V12C4 16.4 7.4 20.5 12 22C16.6 20.5 20 16.4 20 12V6L12 2Z" fill="#006b3f"
+                        stroke="#00c262" stroke-width="0.5" />
+                    <path d="M9 12L11 14L15 10" stroke="#fff" stroke-width="1.8" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                <span class="syne font-extrabold text-lg tracking-widest">SMART BURSARY</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <button id="applynowbtn"
+                    class="hidden md:block bg-green text-white syne font-bold text-sm px-5 py-2.5 rounded-lg hover:bg-gbright transition-colors">Apply
+                    now</button>
+                <button id="signin"
+                    class="hidden md:block border border-white/20 text-cream syne font-bold text-sm px-5 py-2.5 rounded-lg hover:border-gold hover:text-gold transition-colors">Sign
+                    in</button>
+                <div id="hamburgermenu"
+                    class="flex flex-col gap-[5px] items-end border border-white/20 rounded-lg p-2.5 cursor-pointer hover:border-gold transition-colors">
+                    <span class="block w-5 h-0.5 bg-cream rounded"></span>
+                    <span class="block w-5 h-0.5 bg-cream rounded"></span>
+                    <span class="block w-3.5 h-0.5 bg-cream rounded"></span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- aside -->
+        <aside id="asidebar"
+            class="fixed top-0 h-screen w-[min(85vw,300px)] bg-[#081410] border-l-2 border-green z-[100] flex flex-col p-7 pt-20 gap-0"
+            style="right: -100%;">
+            <button id="homebtn"
+                class="text-cream syne font-bold text-lg py-4 border-b border-white/[0.06] text-left hover:text-gold transition-colors bg-transparent border-x-0 border-t-0">Home</button>
+            <button id="workbtn"
+                class="text-cream syne font-bold text-lg py-4 border-b border-white/[0.06] text-left hover:text-gold transition-colors bg-transparent border-x-0 border-t-0">How
+                it works</button>
+
+
+
+            <button id="btnfeatures" class="text-cream syne font-bold text-lg 
+            py-4 border-b border-white/[0.06] text-left hover:text-gold transition-colors
+            
+            bg-transparent border-x-0 border-t-0">Features</button>
+            <button id="btnfqs"
+                class="text-cream syne font-bold text-lg py-4 border-b border-white/[0.06] text-left hover:text-gold transition-colors bg-transparent border-x-0 border-t-0">FAQ</button>
+            <button id="logout"
+                class="text-red-400 syne font-bold text-lg py-4 text-left hover:text-red-300 transition-colors bg-transparent border-none mt-auto">Logout</button>
+        </aside>
+
+
+        <!-- register section -->
+
+
+
+        <!-- herosection -->
+        <section id="landingpage" class="min-h-screen flex items-center pt-28 pb-20 px-6">
+            <div class="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div class="">
+                    <div
+                        class="inline-flex items-center gap-2 bg-green/10 border border-green/30 rounded-full px-4 py-1.5 mb-6">
+                        <span>🇰🇪</span>
+                        <span class="text-xs tracking-[0.14em] uppercase text-gbright font-semibold">Built for
+                            Kenya</span>
+                    </div>
+                    <h2 class="syne font-bold text-base text-muted mb-5 max-w-md leading-relaxed">Built for kenya to
+                        solve unfair distribution of bursaries for kenyans</h2>
+                    <p class="syne font-extrabold leading-[0.92] tracking-tight"
+                        style="font-size:clamp(3.5rem,8vw,6rem)"><b>FRAUD</b></p>
+                    <p class="syne font-extrabold text-gbright leading-[0.92] tracking-tight"
+                        style="font-size:clamp(3.5rem,8vw,6rem)"><b>STOPS</b></p>
+                    <p class="syne font-extrabold leading-[0.92] tracking-tight mb-10"
+                        style="font-size:clamp(3.5rem,8vw,6rem)"><b>HERE</b></p>
+                    <div class="flex gap-3 flex-wrap">
+                        <button id="applynow"
+                            class="bg-green text-white syne font-bold text-base px-8 py-4 rounded-lg hover:bg-gbright transition-all hover:-translate-y-0.5">Apply
+                            now</button>
+                        <button id="herohowitwork"
+                            class="border border-white/25 text-cream syne font-bold text-base px-8 py-4 rounded-lg hover:border-gold hover:text-gold transition-all hover:-translate-y-0.5">How
+                            it works</button>
+                    </div>
+                </div>
+                <div class="bg-white/[0.025] border border-green/25 rounded-2xl p-6 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 right-0 h-px"
+                        style="background:linear-gradient(90deg,transparent,#00c262,transparent)"></div>
+                    <img src="/images/flag-kenya-raised-up-sky-81678249.webp" alt="Kenyas flag"
+                        class="w-full h-40 object-cover rounded-xl mb-5 opacity-80">
+                    <h2 class="syne font-bold text-xs tracking-[0.1em] uppercase text-muted mb-3">Applicants</h2>
+                    <ul id="liveapplants" class="flex flex-col gap-2 min-h-[80px]"></ul>
+                </div>
+            </div>
+        </section>
+
+
+
+
+        <div id="registerpage" class="min-h-screen flex items-center justify-center px-4 py-24 bg-green-950 hidden">
+            <div class="w-full max-w-md bg-green-900 border border-green-700 rounded-2xl p-8">
+
+                <div class="flex items-center gap-2 mb-8">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2L4 6V12C4 16.4 7.4 20.5 12 22C16.6 20.5 20 16.4 20 12V6L12 2Z" fill="#16a34a"
+                            stroke="#4ade80" stroke-width="0.5" />
+                        <path d="M9 12L11 14L15 10" stroke="#fff" stroke-width="1.8" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                    <span class="syne font-extrabold text-lg tracking-widest text-green-50">SMART BURSARY</span>
+                </div>
+
+                <h2 class="syne font-extrabold text-2xl text-green-50 mb-1">Create Account</h2>
+                <p class="text-sm text-green-400 mb-8">Register to apply for bursary</p>
+
+                <form id="registerform" action="">
+
+                    <div class="mb-5">
+                        <label class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Full
+                            names</label>
+                        <input type="text" id="registername" placeholder="Enter your full names"
+                            class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-black placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                    </div>
+
+                    <div class="mb-5">
+                        <label
+                            class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">School</label>
+                        <input type="text" id="registerschool" placeholder="Enter your school name"
+                            class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-black placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                    </div>
+
+                    <div class="mb-5">
+                        <label
+                            class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">County</label>
+                        <input type="text" id="registercounty" placeholder="Enter your county"
+                            class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-black placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                    </div>
+
+                    <div class="mb-5">
+                        <label
+                            class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Admission
+                            Number</label>
+                        <input type="text" id="registeradmission" placeholder="Enter your admission number"
+                            class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-black placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                    </div>
+
+                    <div class="mb-5">
+                        <label class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Email
+                        </label>
+                        <input type="email" id="emailregister" placeholder="Enter your email address"
+                            class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-black placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                    </div>
+
+                    <div class="mb-5">
+                        <label
+                            class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Password</label>
+                        <div class="relative">
+                            <input type="password" id="registerpassword" placeholder="Enter your password"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 pr-12 text-black placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                            <img id="showpassword" src="/images/visible.png" alt="eyeicon"
+                                class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 opacity-40 hover:opacity-100 cursor-pointer transition-opacity">
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Confirm
+                            Password</label>
+                        <div class="relative">
+                            <input type="password" id="registerconfirmpassword" placeholder="Confirm your password"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 pr-12 text-black placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                            <img id="confirmpassword" src="/images/visible.png" alt="eyeicon"
+                                class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 opacity-40 hover:opacity-100 cursor-pointer transition-opacity">
+                        </div>
+                    </div>
+
+                    <p id="registerresults" class="text-sm text-red-400 mb-4"></p>
+
+                    <div class="mb-6">
+                        <button id="registerbtn"
+                            class="w-full bg-green-600 text-white syne font-bold text-base py-3.5 rounded-xl hover:bg-green-500 transition-all hover:-translate-y-0.5">
+                            Create Account
+                        </button>
+                    </div>
+
+                    <p class="text-center text-sm text-green-400">
+                        Already have an account?
+                        <a id="redirecttologinform" href="#"
+                            class="text-yellow-400 font-semibold hover:text-yellow-300 transition-colors ml-1">Sign
+                            in</a>
+                    </p>
+
+                </form>
+            </div>
+        </div>
+
+
+
+        <!-- loginsection -->
+
+        <div id="loginpage" class="min-h-screen flex items-center justify-center px-4 py-24 bg-green-950 hidden">
+            <div class="w-full max-w-md bg-green-900 border border-green-700 rounded-2xl p-8">
+
+                <div class="flex items-center gap-2 mb-8">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2L4 6V12C4 16.4 7.4 20.5 12 22C16.6 20.5 20 16.4 20 12V6L12 2Z" fill="#16a34a"
+                            stroke="#4ade80" stroke-width="0.5" />
+                        <path d="M9 12L11 14L15 10" stroke="#fff" stroke-width="1.8" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                    <span class="syne font-bold text-lg tracking-widest text-green-50">SMART BURSARY</span>
+                </div>
+
+                <h2 class="syne font-bold text-2xl text-green-50 mb-1">Sign in</h2>
+                <p class="text-sm text-green-400 mb-8">Enter your credentials to access your account</p>
+
+                <form id="loginform" action="">
+
+                    <div class="mb-5">
+                        <label class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Full
+                            names</label>
+                        <input type="text" id="username" placeholder="Enter your name"
+                            class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 text-black placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                    </div>
+
+                    <div class="mb-6">
+                        <label
+                            class="block text-xs font-semibold text-green-400 tracking-widest uppercase mb-2">Password</label>
+                        <div class="relative">
+                            <input type="password" id="Password"
+                                class="w-full bg-green-950 border border-green-700 rounded-lg px-4 py-3 pr-12 text-black placeholder-green-700 focus:outline-none focus:border-green-400 transition-colors">
+                            <img id="imageping" src="/images/visible.png" alt="eyeicon"
+                                class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 opacity-40 hover:opacity-100 cursor-pointer transition-opacity">
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <button id="login"
+                            class="w-full bg-white text-black syne font-bold text-base py-3.5 rounded-xl hover:bg-gray-500 transition-all hover:-translate-y-0.5">
+                            Login
+                        </button>
+                    </div>
+
+                    <p class="text-center text-md text-red-400" id="loginresults"></p>
+
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" id="rememberme" class="w-4 h-4 accent-green-500 cursor-pointer">
+                            <p class="text-sm text-green-400">Remember me</p>
+                        </div>
+                        <div class="text-sm text-green-400">
+                            Forgot Password?
+                            <a id="resetpassword" href="#"
+                                class="text-yellow-400 font-semibold hover:text-yellow-300 transition-colors ml-1">Reset</a>
+                        </div>
+
+
+                    </div>
+
+                    <p class="text-center text-sm text-green-400">
+                        Dont have an account?
+                        <a id="registerlink" href="#"
+                            class="text-yellow-400 font-semibold hover:text-yellow-300 transition-colors ml-1">Sign
+                            up</a>
+                    </p>
+
+                    <div id="emailresetcont" class="max-w-md mt-3 mx-auto p-4 bg-gbright block rounded-lg hidden">
+                        <label
+                            class="block text-xs font-semibold text-green-400 my-2 tracking-widest uppercase mb-2">Enter
+                            your email</label>
+                        <input type="email" id="emailreset" class="w-full mt-2 bg-green-950 border border-green-700 rounded-lg px-4 py-3 pr-12 text-black placeholder-green-700 
+                                focus:outline-none focus:border-green-400 transition-colors">
+                        <button id="getemail"
+                            class="w-full bg-white py-2 my-2 text-black syne font-bold text-base py-3.5 rounded-xl hover:bg-gray-500 transition-all hover:-translate-y-0.5">
+                            Get email
+                        </button>
+                        <p id="emailresults" class="text-sm text-green-400"></p>
+                    </div>
+
+
+
+                </form>
+            </div>
+        </div>
+
+
+        <!-- stats section -->
+        <section id="startssection" class="bg-surface border-t border-white/[0.05] py-14 px-6">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-10">
+                    <p class="text-sm text-muted leading-relaxed max-w-lg mx-auto">Modern software with multiple sieves
+                        which help to ensure that only correct and right students get bursary</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div
+                        class="bg-bg border border-green/20 rounded-xl p-7 text-center hover:border-gold hover:-translate-y-1 transition-all duration-300 cursor-default">
+                        <h2 class="syne font-bold text-4xl text-gold leading-none mb-3">95% Fraud catch</h2>
+                        <p class="text-sm text-muted leading-relaxed">This is achieved through multi layered sieves that
+                            tracks every decision an applicant submits</p>
+                    </div>
+                    <div
+                        class="bg-bg border border-green/20 rounded-xl p-7 text-center hover:border-gold hover:-translate-y-1 transition-all duration-300 cursor-default">
+                        <h2 class="syne font-bold text-2xl text-gold leading-none mb-4">3 layer Verification</h2>
+                        <ul class="text-sm text-muted flex flex-col gap-2 list-none">
+                            <li class="flex items-center justify-center gap-2"><span
+                                    class="w-1.5 h-1.5 rounded-full bg-gbright inline-block"></span>Primary school</li>
+                            <li class="flex items-center justify-center gap-2"><span
+                                    class="w-1.5 h-1.5 rounded-full bg-gbright inline-block"></span>Secondary school
+                            </li>
+                            <li class="flex items-center justify-center gap-2"><span
+                                    class="w-1.5 h-1.5 rounded-full bg-gbright inline-block"></span>Chiefs Applicant
+                            </li>
+                        </ul>
+                    </div>
+                    <div
+                        class="bg-bg border border-green/20 rounded-xl p-7 text-center hover:border-gold hover:-translate-y-1 transition-all duration-300 cursor-default">
+                        <h2 class="syne font-bold text-3xl text-gold leading-none mb-2">0 ghost applicant</h2>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- how it works -->
+        <section id="howitworksection" class="py-24 px-6">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-14">
+                    <span class="text-xs tracking-[0.15em] uppercase text-gold font-semibold block mb-3">The
+                        Process</span>
+                    <h2 class="syne font-extrabold text-5xl">How it works</h2>
+                </div>
+                <div class="">
+                    <ul class="flex flex-col gap-5 list-none">
+                        <li
+                            class="bg-white/[0.02] border border-green/20 rounded-xl p-7 hover:border-green/60 hover:-translate-y-1 transition-all duration-300">
+                            <div class="syne font-bold text-xs tracking-widest uppercase text-gbright mb-1">Step 1 —
+                                Apply</div>
+                            <p class="text-sm text-muted leading-relaxed">Students submit their application online with
+                                personal details, school information, and supporting documents.</p>
+                        </li>
+                        <li
+                            class="bg-white/[0.02] border border-green/20 rounded-xl p-7 hover:border-green/60 hover:-translate-y-1 transition-all duration-300">
+                            <div class="syne font-bold text-xs tracking-widest uppercase text-gbright mb-1">Step 2 —
+                                Sieves Run</div>
+                            <p class="text-sm text-muted leading-relaxed">26 AI-powered fraud detection sieves instantly
+                                scan every application for inconsistencies, duplicates, and document tampering.</p>
+                        </li>
+                        <li
+                            class="bg-white/[0.02] border border-green/20 rounded-xl p-7 hover:border-green/60 hover:-translate-y-1 transition-all duration-300">
+                            <div class="syne font-bold text-xs tracking-widest uppercase text-gbright mb-1">Step 3 —
+                                Verified or Flagged</div>
+                            <p class="text-sm text-muted leading-relaxed">Clean applications are marked verified and
+                                forwarded. Suspicious ones are flagged with a detailed reason for human review.</p>
+                        </li>
+                        <li
+                            class="bg-white/[0.02] border border-green/20 rounded-xl p-7 hover:border-green/60 hover:-translate-y-1 transition-all duration-300">
+                            <div class="syne font-bold text-xs tracking-widest uppercase text-gbright mb-1">Step 4 —
+                                County Reviews</div>
+                            <p class="text-sm text-muted leading-relaxed">County bursary officers receive a clean
+                                dashboard showing verified applicants, flagged cases, and full audit trails.</p>
+                        </li>
+                        <li
+                            class="bg-white/[0.02] border border-green/20 rounded-xl p-7 hover:border-green/60 hover:-translate-y-1 transition-all duration-300">
+                            <div class="syne font-bold text-xs tracking-widest uppercase text-gbright mb-1">Step 5 —
+                                Disbursement</div>
+                            <p class="text-sm text-muted leading-relaxed">Approved students receive their bursary
+                                directly — with every transaction logged, traceable, and corruption-proof.</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- old way vs new way -->
+        <section id="oldnewway" class="bg-surface border-t border-white/[0.05] py-24 px-6">
+            <div class="max-w-3xl mx-auto">
+                <div class="text-center mb-14">
+                    <span class="text-xs tracking-[0.15em] uppercase text-gold font-semibold block mb-3">The
+                        Difference</span>
+                    <h2 class="syne font-extrabold text-5xl mb-10">Why Smart Bursary?</h2>
+                </div>
+                <div class="">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr>
+                                <th
+                                    class="bg-red-900/20 border border-red-900/30 px-5 py-4 syne font-bold text-red-400 text-sm text-left rounded-tl-xl w-1/2">
+                                    Old way ❌</th>
+                                <th
+                                    class="bg-green/20 border border-green/40 px-5 py-4 syne font-bold text-gbright text-sm text-left rounded-tr-xl w-1/2">
+                                    New way ✅</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td
+                                    class="bg-red-900/[0.05] border border-red-900/10 px-5 py-3.5 text-red-300/80 text-sm">
+                                    ✗ Manual checking</td>
+                                <td
+                                    class="bg-green/[0.05] border border-green/10 px-5 py-3.5 text-emerald-300/80 text-sm">
+                                    ✓ 26 AI sieves</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    class="bg-red-900/[0.05] border border-red-900/10 px-5 py-3.5 text-red-300/80 text-sm">
+                                    ✗ Ghost applicants</td>
+                                <td
+                                    class="bg-green/[0.05] border border-green/10 px-5 py-3.5 text-emerald-300/80 text-sm">
+                                    ✓ Zero duplicates</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    class="bg-red-900/[0.05] border border-red-900/10 px-5 py-3.5 text-red-300/80 text-sm">
+                                    ✗ Bribery possible</td>
+                                <td
+                                    class="bg-green/[0.05] border border-green/10 px-5 py-3.5 text-emerald-300/80 text-sm">
+                                    ✓ Full audit trail</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    class="bg-red-900/[0.05] border border-red-900/10 px-5 py-3.5 text-red-300/80 text-sm rounded-bl-xl">
+                                    ✗ Weeks to process</td>
+                                <td
+                                    class="bg-green/[0.05] border border-green/10 px-5 py-3.5 text-emerald-300/80 text-sm rounded-br-xl">
+                                    ✓ Minutes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- features -->
+        <section id="features" class="py-24 px-6">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-14">
+                    <span class="text-xs tracking-[0.15em] uppercase text-gold font-semibold block mb-3">The
+                        Engine</span>
+                    <h3 class="syne font-extrabold text-5xl">Featured section</h3>
+                </div>
+                <ul class="grid grid-cols-1 md:grid-cols-3 gap-6 list-none">
+                    <li
+                        class="bg-white/[0.02] border border-white/[0.07] rounded-xl p-8 hover:border-gold hover:bg-gold/[0.04] transition-all duration-300 hover:-translate-y-1">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-green/15 border border-green/30 flex items-center justify-center text-2xl mb-5">
+                            🔎</div>
+                        <div class="syne font-bold text-base">Document Tampering</div>
+                    </li>
+                    <li
+                        class="bg-white/[0.02] border border-white/[0.07] rounded-xl p-8 hover:border-gold hover:bg-gold/[0.04] transition-all duration-300 hover:-translate-y-1">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-green/15 border border-green/30 flex items-center justify-center text-2xl mb-5">
+                            📱</div>
+                        <div class="syne font-bold text-base">Device FingerPrinting</div>
+                    </li>
+                    <li
+                        class="bg-white/[0.02] border border-white/[0.07] rounded-xl p-8 hover:border-gold hover:bg-gold/[0.04] transition-all duration-300 hover:-translate-y-1">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-green/15 border border-green/30 flex items-center justify-center text-2xl mb-5">
+                            🧠</div>
+                        <div class="syne font-bold text-base">AI parsing</div>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- call to action -->
+        <section class="bg-surface border-t border-white/[0.05] py-24 px-6">
+            <div class="max-w-4xl mx-auto">
+                <div class="rounded-3xl p-16 text-center relative overflow-hidden"
+                    style="background:linear-gradient(135deg,rgba(0,107,63,0.15),rgba(200,169,81,0.08));border:1px solid rgba(0,107,63,0.3)">
+                    <div class="absolute inset-0 pointer-events-none"
+                        style="background:radial-gradient(ellipse at 50% 0%,rgba(0,107,63,0.2),transparent 60%)"></div>
+                    <h2 class="syne font-extrabold text-4xl mb-5 relative z-10">Call into action</h2>
+                    <p class="text-muted text-lg relative z-10">Ready to kill bursary fraud? <a href="tel:0727669032"
+                            class="text-gold hover:text-gbright transition-colors font-semibold">Click here</a></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <div id="FAQ" class="py-24 px-6">
+            <div class="max-w-2xl mx-auto">
+                <div class="text-center mb-14">
+                    <span class="text-xs tracking-[0.15em] uppercase text-gold font-semibold block mb-3">Got
+                        Questions?</span>
+                    <h3 class="syne font-extrabold text-5xl">FAQ Questions</h3>
+                </div>
+                <div id="safety" class="flex flex-col gap-0">
+                    <div class="border-b border-white/[0.07] py-6">
+                        <h3 class="syne font-bold text-lg text-gold mb-3">Is my data safe</h3>
+                        <p class="text-sm text-muted leading-relaxed">All applicant data is encrypted end-to-end and
+                            stored on secure servers. No personal information is shared with third parties. Only
+                            authorized county officials can access application records.</p>
+                    </div>
+                    <div class="border-b border-white/[0.07] py-6">
+                        <h3 class="syne font-bold text-lg text-gold mb-3">Who can see my applications</h3>
+                        <p class="text-sm text-muted leading-relaxed">Only you and the assigned county bursary officer
+                            can view your application. All access is logged with timestamps creating a full audit trail.
+                        </p>
+                    </div>
+                    <div class="border-b border-white/[0.07] py-6">
+                        <h3 class="syne font-bold text-lg text-gold mb-3">Has Smart Bursary ever been breached?</h3>
+                        <p class="text-sm text-muted leading-relaxed">Smart Bursary is built with security-first
+                            architecture including rate limiting, device fingerprinting, and encrypted databases. No
+                            breaches have occurred.</p>
+                    </div>
+                    <div class="border-b border-white/[0.07] py-6">
+                        <h3 class="syne font-bold text-lg text-gold mb-3">Are my uploaded documents secure?</h3>
+                        <p class="text-sm text-muted leading-relaxed">All uploaded documents are stored with
+                            military-grade encryption. Documents are used strictly for verification purposes and cannot
+                            be accessed by unauthorized parties.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+        <!-- footer -->
+        <footer class="bg-[#030a06] border-t border-green/20 pt-16 pb-8 px-6">
+            <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+                <div class="">
+                    <h3 class="syne font-extrabold text-lg tracking-widest mb-1">Smart Bursary Portal</h3>
+                    <h3 class="text-gold text-sm font-semibold mb-4">Kenyas Country Fraud Detection</h3>
+                    <p class="text-xs text-white/20">© 2026 Smart Bursary. All rights reserved.</p>
+                    <p class="text-xs text-white/20 mt-1">© 2026 Built for kenya 🇰🇪</p>
+                </div>
+                <div class="">
+                    <h2 class="syne font-bold text-xs tracking-[0.12em] uppercase text-gold mb-5">Navigate</h2>
+                    <ul class="list-none flex flex-col gap-3">
+                        <li><a href="#"
+                                class="text-muted text-sm hover:text-cream transition-colors no-underline">Home</a></li>
+                        <li><a href="#" class="text-muted text-sm hover:text-cream transition-colors no-underline">How
+                                it works</a></li>
+                        <li><a href="#"
+                                class="text-muted text-sm hover:text-cream transition-colors no-underline">Features</a>
+                        </li>
+                        <li><a href="#" class="text-muted text-sm hover:text-cream transition-colors no-underline">Apply
+                                now</a></li>
+                    </ul>
+                </div>
+                <div class="">
+                    <h2 class="syne font-bold text-xs tracking-[0.12em] uppercase text-gold mb-5">Contact</h2>
+                    <div class="flex flex-col gap-4">
+                        <div class="">
+                            <div class="text-[10px] uppercase tracking-widest text-white/25 mb-1">Email</div>
+                            <p class="text-muted text-sm">hello@smartbursary.co.ke</p>
+                        </div>
+                        <div class="">
+                            <div class="text-[10px] uppercase tracking-widest text-white/25 mb-1">Hotline</div>
+                            <p class="text-muted text-sm">Call us through <a href="tel:0727669032"
+                                    class="text-gold hover:text-cream transition-colors">0727669032</a></p>
+                        </div>
+                        <div class="">
+                            <h2 class="text-[10px] uppercase tracking-widest text-white/25 mb-1">For county Partnership
+                            </h2>
+                            <p class="text-muted text-sm">Call though <a href="#"
+                                    class="text-gold hover:text-cream transition-colors">click here</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+    <script type="module" src="/javascript/index.js"></script>
+</body>
+
+</html>
