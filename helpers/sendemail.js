@@ -32,10 +32,20 @@ router.post('/emailreset',async(req,res)=>{
             to:email,
             subject:'Smart bursary Password reset',
             html:`
-            <h2>Password Reset</h2>
-              <p>Click the link to reset the Password</p> 
-             <a href="${process.env.FRONTENDURL}/password.html?token=${token}">Reset Password</a>
-             <p>Link expires in 1 hour</p> `
+           <!DOCTYPE html>
+<html>
+<body style="font-family: Arial, sans-serif; padding: 20px;">
+  <h2 style="color: #166534;">Smart Bursary — Password Reset</h2>
+  <p>Click the button below to reset your password:</p>
+  <br/>
+  <a href="${process.env.FRONTENDURL}/password.html?token=${token}" 
+     style="display:inline-block; padding:12px 24px; background-color:#166534; color:#ffffff; text-decoration:none; border-radius:8px; font-weight:bold; font-size:14px;">
+    Reset Password
+  </a>
+  <br/><br/>
+  <p style="color:#666; font-size:12px;">Link expires in 1 hour. If you did not request this, ignore this email.</p>
+</body>
+</html>`
         })
         return res.status(200).json({message:'link sent to your email address '});
 
