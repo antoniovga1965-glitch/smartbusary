@@ -12,7 +12,6 @@
 // };
 
 // module.exports = reddisconnection;
-
 const Redis = require('ioredis');
 
 const reddisconnection = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
