@@ -9,7 +9,10 @@ app.use(express.json())
 app.use(express.static('public'));
 
 app.use(cookieparser());
-app.use(cors());
+app.use(cors({
+  origin: 'https://smartbusary-production.up.railway.app',
+  credentials: true
+}));
 
 const register = require('./security/register');
 app.use('/register',register);
