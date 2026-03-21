@@ -34,7 +34,7 @@ router.post('/emailreset',async(req,res)=>{
             html:`
             <h2>Password Reset</h2>
               <p>Click the link to reset the Password</p> 
-             <a href="${process.env.FRONTENDURL}/passwordreset.html?token=${token}">Reset Password</a>
+             <a href="${process.env.FRONTENDURL}/password.html?token=${token}">Reset Password</a>
              <p>Link expires in 1 hour</p> `
         })
         return res.status(200).json({message:'link sent to your email address '});
@@ -48,7 +48,7 @@ router.post('/emailreset',async(req,res)=>{
 
 
 router.get('/', (req, res) => {
-res.sendFile(path.join(__dirname,'../public/passwordreset.html'))
+res.sendFile(path.join(__dirname,'../public/password.html'))
 })
 
 router.post('/savenewpassword',async(req,res)=>{
