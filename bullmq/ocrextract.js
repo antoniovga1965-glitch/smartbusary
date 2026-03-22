@@ -17,35 +17,42 @@ const namesMatch = (name1, name2, threshold = 3) => {
 
 const extractdocumentdata = async (filepath) => {
   if(!filepath)return null;
-  try {
-    const form = new FormData();
-    form.append('file', fs.createReadStream(filepath));
-    form.append('language', 'eng');
-    form.append('isOverlayRequired', 'false');
-    form.append('scale', 'true');
-    form.append('detectOrientation', 'true');
-    form.append('OCREngine', '2');
 
-    const ocrres = await axios.post(
-      'https://api.ocr.space/parse/image',
-      form,
-      {
-        headers: {
-          ...form.getHeaders(),
-          'apikey': process.env.OCRAPIKEY,
-        },
-        timeout: 60000,
+  for (let ocrAttempt = 1; ocrAttempt <= 2; ocrAttempt++) {
+    try {
+      console.log(`OCR.space attempt ${ocrAttempt} for ${filepath}...`);
+      const form = new FormData();
+      form.append('file', fs.createReadStream(filepath));
+      form.append('language', 'eng');
+      form.append('isOverlayRequired', 'false');
+      form.append('scale', 'true');
+      form.append('detectOrientation', 'true');
+      form.append('OCREngine', '2');
+
+      const ocrres = await axios.post(
+        'https://api.ocr.space/parse/image',
+        form,
+        {
+          headers: {
+            ...form.getHeaders(),
+            'apikey': process.env.OCRAPIKEY,
+          },
+          timeout: 120000,
+        }
+      );
+
+      const text = ocrres.data?.ParsedResults?.[0]?.ParsedText || '';
+      console.log(`\n=== OCR RESULT: ${filepath} ===`);
+      console.log(text);
+      console.log(`=== END OCR ===\n`);
+      return text;
+    } catch (err) {
+      console.error(`OCR attempt ${ocrAttempt} failed for ${filepath}:`, err.message);
+      if (ocrAttempt === 2) {
+        return null;
       }
-    );
-
-    const text = ocrres.data?.ParsedResults?.[0]?.ParsedText || '';
-    console.log(`\n=== OCR RESULT: ${filepath} ===`);
-    console.log(text);
-    console.log(`=== END OCR ===\n`);
-    return text;
-  } catch (err) {
-    console.error(`OCR failed for ${filepath}:`, err.message);
-    return null; 
+      console.log(`Retrying OCR for ${filepath}...`);
+    }
   }
 };
 
