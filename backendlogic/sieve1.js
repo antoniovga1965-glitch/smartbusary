@@ -240,12 +240,8 @@ const generateDeviceFingerprint = (req) => {
   return crypto.createHash("sha256").update(raw).digest("hex");
 };
 router.post(
-  "/secondaryapplicants",
-  upload.fields(documents),
-  verifyschemas,
-  validateFiles,
-  limit,
-  verifyjwt,
+  "/secondaryapplicants", limit,verifyjwt, verifyschemas,validateFiles,
+  upload.fields(documents), 
   async (req, res) => {
     const {
       nameinput,
