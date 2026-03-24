@@ -205,7 +205,7 @@ router.post("/secondaryapplicants", limit, verifyjwt, verifyschemas, validateFil
       return res.status(422).json({ message: "Something is wrong with pdf authenticity try with correct ones" });
     }
 
-    /
+    
     const hashfile = (filepath) => {
       const buffer = fs.readFileSync(filepath);
       return crypto.createHash("sha256").update(buffer).digest("hex");
