@@ -18,7 +18,60 @@ const logger = require("../security/winston");
 const getresend = require('../helpers/email');
 
 
+
 if (!fs.existsSync("uploads")) fs.mkdirSync("uploads");
+if (!fs.existsSync("uploads_tmp")) fs.mkdirSync("uploads_tmp");
+
+router.post("/upload-chunk", express.raw({ type: "*/*", limit: "2mb" }), (req, res) => {
+  try {
+    const { fileid, chunknumber, totalchunks, filename } = req.headers;
+    if (!fileid || !chunknumber || !totalchunks || !filename) {
+      return res.status(400).json({ message: "Missing chunk headers" });
+    }
+
+    const tempDir = path.join("uploads_tmp", fileid);
+    if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
+
+    const chunkPath = path.join(tempDir, `chunk_${chunknumber}`);
+    fs.writeFileSync(chunkPath, req.body);
+    console.log(`Received chunk ${chunknumber}/${totalchunks} for ${filename}`);
+
+    // Check if all chunks are received
+    const receivedChunks = fs.readdirSync(tempDir).filter(f => f.startsWith("chunk_")).length;
+    if (receivedChunks == totalchunks) {
+      const finalPath = path.join("uploads", `${Date.now()}-${filename}`);
+      const writeStream = fs.createWriteStream(finalPath);
+
+      // Sort chunks to ensure correct order
+      const chunks = fs.readdirSync(tempDir)
+        .filter(f => f.startsWith("chunk_"))
+        .sort((a, b) => {
+          const numA = parseInt(a.split("_")[1]);
+          const numB = parseInt(b.split("_")[1]);
+          return numA - numB;
+        });
+
+      for (const chunkFile of chunks) {
+        const chunkData = fs.readFileSync(path.join(tempDir, chunkFile));
+        writeStream.write(chunkData);
+      }
+
+      writeStream.end(() => console.log(`File ${filename} assembled successfully`));
+
+      // Cleanup temp directory
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+
+    res.json({ message: `Chunk ${chunknumber} uploaded` });
+  } catch (err) {
+    console.error("Error handling chunk upload:", err);
+    res.status(500).json({ message: "Server error uploading chunk" });
+  }
+});
+
+
+
+// if (!fs.existsSync("uploads")) fs.mkdirSync("uploads");
 
 const limit = limitor({
   windowMs: 15 * 60 * 1000,
@@ -148,7 +201,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 20 * 1024 * 1024 },
+  limits: { fileSize: 2 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (
       file.mimetype.startsWith("image/png") ||
@@ -161,52 +214,6 @@ const upload = multer({
     }
   },
 });
-
-// Extend the socket timeout for the upload endpoint to accommodate slower
-// mobile connections. The default Express/Node timeout (2 min) is often too
-// short for multi-file uploads over a 3G/4G link.
-const uploadTimeout = (req, res, next) => {
-  req.socket.setTimeout(5 * 60 * 1000); // 5 minutes
-  res.setTimeout(5 * 60 * 1000, () => {
-    logger.warn(
-      `Upload request timed out for IP: ${req.headers["x-forwarded-for"] || req.socket.remoteAddress}`,
-    );
-    if (!res.headersSent) {
-      res
-        .status(408)
-        .json({ message: "Upload timed out — please try again on a stable connection" });
-    }
-  });
-  next();
-};
-
-// Multer error handler — must have the (err, req, res, next) signature so
-// Express treats it as an error-handling middleware.
-const handleUploadError = (err, req, res, next) => {
-  if (!err) return next();
-
-  // Connection dropped mid-upload (common on mobile networks)
-  if (err.code === "ECONNABORTED" || err.message === "Request aborted") {
-    logger.warn(
-      `Upload aborted by client — IP: ${req.headers["x-forwarded-for"] || req.socket.remoteAddress}, UA: ${req.headers["user-agent"]}`,
-    );
-    return res.status(400).json({ message: "Upload interrupted — please try again" });
-  }
-
-  // Individual file exceeds the multer fileSize limit
-  if (err.code === "LIMIT_FILE_SIZE") {
-    return res.status(413).json({ message: "File too large — each file must be under 20 MB" });
-  }
-
-  // Any other multer-specific error (wrong field name, too many files, etc.)
-  if (err.name === "MulterError") {
-    logger.warn(`Multer error during upload: ${err.message}`);
-    return res.status(422).json({ message: `Upload error: ${err.message}` });
-  }
-
-  // Not a multer error — pass it down to the global error handler
-  next(err);
-};
 
 const documents = [
   { name: "birthcertificate", max: 1 },
@@ -234,9 +241,7 @@ const generateDeviceFingerprint = (req) => {
 };
 router.post(
   "/secondaryapplicants",
-  uploadTimeout,
   upload.fields(documents),
-  handleUploadError,
   verifyschemas,
   validateFiles,
   limit,
