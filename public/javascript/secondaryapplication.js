@@ -81,20 +81,28 @@ submitbtn.addEventListener("click", async () => {
   }
 
   if (
-    !nameinput.value || !bithcertno.value || !gender.value ||
-    !countyresidence.value || !subcounty.value || !wardlevel.value ||
-    !schoolname.value || !personalemail.value || !primarySchoolemail.value ||
-    !secondarySchoolemail.value || !schoolcounty.value || !kcpecode.value ||
-    !Assesmentno.value || !kcpeyear.value || !kcpemarks.value ||
-    !currentform.value || !admissionno.value || !schooltype.value ||
-    !guardianname.value || !guardianphoneno.value || !guardianID.value ||
-    !relationshiptostudent.value || !occupation.value || !guardianlocation.value ||
-    !guardiansincome.value || !numberofsiblings.value || !siblingsinschool.value ||
-    !orphanstatus.value || !housingstatus.value || !disabilitystatus.value ||
-    !Guardiankrapin.value || !birthcertificate.files[0] ||
-    !admissionletter.files[0] || !feestructure.files[0] ||
-    !schoolreport.files[0] || !guardiannationalid.files[0] ||
-    !proofofincome.files[0] || !chiefsletter.files[0] || !passportphoto.files[0]
+  !nameinput.value||
+      !guardianname.value ||
+      !guardianphoneno.value ||
+      !guardianID.value ||
+      !relationshiptostudent.value ||
+      !occupation.value ||
+      !guardianlocation.value ||
+      !guardiansincome.value ||
+      !numberofsiblings.value ||
+      !siblingsinschool.value ||
+      !orphanstatus.value ||
+      !housingstatus.value ||
+      !birthcertificate.files[0] ||
+      !admissionletter.files[0] ||
+      !feestructure.files[0] ||
+      !schoolreport.files[0] ||
+      !disabilitystatus.value ||
+      !guardiannationalid.files[0] ||
+      !Guardiankrapin.value ||
+      !proofofincome.files[0] ||
+      !chiefsletter.files[0] ||
+      !passportphoto.files[0]
   ) {
     submittedresults.textContent = "All fields are required before submission!";
     setTimeout(() => submittedresults.classList.add("hidden"), 3000);
@@ -113,8 +121,7 @@ submitbtn.addEventListener("click", async () => {
 
       let attempts = 0;
       let success = false;
-
-      //
+      
       while (attempts < 3 && !success) {
         try {
           const res = await fetch("/secondary/upload-chunk", {
@@ -165,7 +172,7 @@ submitbtn.addEventListener("click", async () => {
     fileIds.chiefsletter = await uploadFileInChunks(chiefsletter.files[0], "chiefsletter");
     fileIds.passportphoto = await uploadFileInChunks(passportphoto.files[0], "passportphoto");
 
-    // optional files
+  
     if (DeathCertificates.files[0]) {
       fileIds.DeathCertificates = await uploadFileInChunks(DeathCertificates.files[0], "DeathCertificates");
     }
@@ -173,7 +180,7 @@ submitbtn.addEventListener("click", async () => {
       fileIds.disabilitycertificates = await uploadFileInChunks(disabilitycertificates.files[0], "disabilitycertificates");
     }
 
-    // ========== SEND FORM DATA ==========
+    
     submitbtn.textContent = "⏳ Submitting application...";
 
     const response = await fetch("/secondary/secondaryapplicants", {
@@ -213,7 +220,7 @@ submitbtn.addEventListener("click", async () => {
         housingstatus: housingstatus.value,
         disabilitystatus: disabilitystatus.value,
         timeToSubmit: Date.now() - formStartTime,
-        fileIds, // ← assembled file paths from chunks
+        fileIds, 
       }),
     });
 
