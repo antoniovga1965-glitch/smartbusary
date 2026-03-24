@@ -171,7 +171,7 @@ const validateFiles = (req, res, next) => {
   for (const field of requiredFiles) {
     const file = req.files?.[field]?.[0];
     if (!file) return res.status(422).json({ message: `${field} is required` });
-    if (file.size > 2 * 1024 * 1024)
+    if (file.size > 15 * 1024 * 1024)
       return res.status(422).json({ message: `${field} must be under 2MB` });
     if (!["image/jpeg", "image/png", "application/pdf"].includes(file.mimetype))
       return res
