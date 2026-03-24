@@ -16,78 +16,86 @@ const namesMatch = (name1, name2, threshold = 3) => {
 };
 
 const extractdocumentdata = async (filepath) => {
-  if(!filepath)return null;
-  try {
-    // Log file metadata before sending to OCR.space
-    let filesize = null;
+  if (!filepath) return null;
+
+  for (let ocrAttempt = 1; ocrAttempt <= 2; ocrAttempt++) {
     try {
-      const stat = fs.statSync(filepath);
-      filesize = stat.size;
-    } catch (staterr) {
-      console.warn(`[OCR] Could not stat file ${filepath}:`, staterr.message);
-    }
-    console.log(`\n[OCR] Sending file to OCR.space — path: ${filepath}, size: ${filesize !== null ? `${filesize} bytes` : 'unknown'}`);
-
-    const form = new FormData();
-    form.append('file', fs.createReadStream(filepath));
-    form.append('language', 'eng');
-    form.append('isOverlayRequired', 'false');
-    form.append('scale', 'true');
-    form.append('detectOrientation', 'true');
-    form.append('OCREngine', '2');
-
-    const ocrres = await axios.post(
-      'https://api.ocr.space/parse/image',
-      form,
-      {
-        headers: {
-          ...form.getHeaders(),
-          'apikey': process.env.OCRAPIKEY,
-        },
-        timeout: 60000,
+      // Log file metadata before sending to OCR.space
+      let filesize = null;
+      try {
+        const stat = fs.statSync(filepath);
+        filesize = stat.size;
+      } catch (staterr) {
+        console.warn(`[OCR] Could not stat file ${filepath}:`, staterr.message);
       }
-    );
+      console.log(`\n[OCR] Sending file to OCR.space — path: ${filepath}, size: ${filesize !== null ? `${filesize} bytes` : 'unknown'}`);
+      console.log(`OCR.space attempt ${ocrAttempt} for ${filepath}...`);
 
-    // Log HTTP status and full raw response for diagnostics
-    console.log(`[OCR] HTTP status: ${ocrres.status}`);
-    console.log(`[OCR] Full response for ${filepath}:`, JSON.stringify(ocrres.data, null, 2));
+      const form = new FormData();
+      form.append('file', fs.createReadStream(filepath));
+      form.append('language', 'eng');
+      form.append('isOverlayRequired', 'false');
+      form.append('scale', 'true');
+      form.append('detectOrientation', 'true');
+      form.append('OCREngine', '2');
 
-    // Check for an API-level error returned in the response body
-    const apiErrorMsg = ocrres.data?.ErrorMessage;
-    const exitCode = ocrres.data?.OCRExitCode;
-    if (apiErrorMsg || (exitCode !== undefined && exitCode !== 1)) {
-      const errorDetail = Array.isArray(apiErrorMsg) ? apiErrorMsg.join('; ') : (apiErrorMsg || 'unknown error');
-      console.error(`[OCR] OCR.space API error for ${filepath} — exit code: ${exitCode}, message: ${errorDetail}`);
-      return null;
+      const ocrres = await axios.post(
+        'https://api.ocr.space/parse/image',
+        form,
+        {
+          headers: {
+            ...form.getHeaders(),
+            'apikey': process.env.OCRAPIKEY,
+          },
+          timeout: 120000,
+        }
+      );
+
+      // Log HTTP status and full raw response for diagnostics
+      console.log(`[OCR] HTTP status: ${ocrres.status}`);
+      console.log(`[OCR] Full response for ${filepath}:`, JSON.stringify(ocrres.data, null, 2));
+
+      // Check for an API-level error returned in the response body
+      const apiErrorMsg = ocrres.data?.ErrorMessage;
+      const exitCode = ocrres.data?.OCRExitCode;
+      if (apiErrorMsg || (exitCode !== undefined && exitCode !== 1)) {
+        const errorDetail = Array.isArray(apiErrorMsg) ? apiErrorMsg.join('; ') : (apiErrorMsg || 'unknown error');
+        console.error(`[OCR] OCR.space API error for ${filepath} — exit code: ${exitCode}, message: ${errorDetail}`);
+        return null;
+      }
+
+      const parsedResult = ocrres.data?.ParsedResults?.[0];
+      const resultErrorMsg = parsedResult?.ErrorMessage;
+      if (resultErrorMsg) {
+        console.error(`[OCR] OCR.space parse error for ${filepath}:`, resultErrorMsg);
+        return null;
+      }
+
+      const text = parsedResult?.ParsedText || '';
+      console.log(`\n=== OCR RESULT: ${filepath} ===`);
+      console.log(text || '(empty — no text extracted)');
+      console.log(`=== END OCR ===\n`);
+
+      if (!text) {
+        console.warn(`[OCR] OCR.space returned empty ParsedText for ${filepath} — document may be unreadable, unsupported format, or image quality too low`);
+      }
+
+      return text;
+    } catch (err) {
+      console.error(`OCR attempt ${ocrAttempt} failed for ${filepath}:`, err.message);
+      if (ocrAttempt === 2) {
+        // distinguish between network and generic failure
+        if (err.response) {
+          console.error(`[OCR] HTTP error — status: ${err.response.status}, body:`, JSON.stringify(err.response.data));
+        } else if (err.request) {
+          console.error(`[OCR] Network error — no response received (timeout or connectivity issue):`, err.message);
+        } else {
+          console.error(`[OCR] Request setup error:`, err.message);
+        }
+        return null;
+      }
+      console.log(`Retrying OCR for ${filepath}...`);
     }
-
-    const parsedResult = ocrres.data?.ParsedResults?.[0];
-    const resultErrorMsg = parsedResult?.ErrorMessage;
-    if (resultErrorMsg) {
-      console.error(`[OCR] OCR.space parse error for ${filepath}:`, resultErrorMsg);
-      return null;
-    }
-
-    const text = parsedResult?.ParsedText || '';
-    console.log(`\n=== OCR RESULT: ${filepath} ===`);
-    console.log(text || '(empty — no text extracted)');
-    console.log(`=== END OCR ===\n`);
-
-    if (!text) {
-      console.warn(`[OCR] OCR.space returned empty ParsedText for ${filepath} — document may be unreadable, unsupported format, or image quality too low`);
-    }
-
-    return text;
-  } catch (err) {
-    // Distinguish between an HTTP/network error and a generic failure
-    if (err.response) {
-      console.error(`[OCR] OCR.space HTTP error for ${filepath} — status: ${err.response.status}, body:`, JSON.stringify(err.response.data));
-    } else if (err.request) {
-      console.error(`[OCR] OCR.space network error for ${filepath} — no response received (timeout or connectivity issue):`, err.message);
-    } else {
-      console.error(`[OCR] OCR request setup error for ${filepath}:`, err.message);
-    }
-    return null; 
   }
 };
 
