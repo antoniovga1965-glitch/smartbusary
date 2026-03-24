@@ -28,7 +28,8 @@ const verifyloginschemas = (req,res,next)=>{
 const limitor = limit({
     windowMs:15*60*1000,
     max:20,
-    message:{message:'Too many login attempts try again after 15 minutes'}
+    message:{message:'Too many login attempts try again after 15 minutes'},
+    trustProxy: true,
 })
 
 router.post('/loginroute',verifyloginschemas,limitor,async(req,res)=>{
