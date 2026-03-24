@@ -9,6 +9,12 @@ app.use(express.json())
 app.use(express.static('public'));
 app.set('trust proxy', 1);
 
+
+app.use((req, res, next) => {
+  req.setTimeout(180000); 
+  res.setTimeout(180000);
+  next();
+});
 app.use(cookieparser());
 app.use(cors({
   origin: 'https://smartbusary-production.up.railway.app',

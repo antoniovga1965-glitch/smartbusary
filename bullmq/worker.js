@@ -65,21 +65,37 @@ const worker = new Worker(
     if (ipadresscount > 50) flags.push({ reason: 'More than 50 applications coming from this IP' });
 
    
-    try {
-      const res = await axios.get(
-        "https://selection.education.go.ke/api/api/v1/open/verify-selection",
-        {
-          params: { assessment_number: Assesmentno },
-          headers: {
-            Accept: "application/json",
-            Referer: "https://selection.education.go.ke/my-selections",
-          },
-          httpsAgent:new https.Agent({rejectUnauthorized:false}),
-          timeout: 10000,
-        }
-      );
+    const ministryRequestOptions = {
+      params: { assessment_number: Assesmentno },
+      headers: {
+        Accept: "application/json",
+        Referer: "https://selection.education.go.ke/my-selections",
+      },
+      httpsAgent: new https.Agent({ rejectUnauthorized: false }),
+      timeout: 30000,
+    };
 
-      const data = res.data;
+    try {
+      let ministryRes;
+      try {
+        ministryRes = await axios.get(
+          "https://selection.education.go.ke/api/api/v1/open/verify-selection",
+          ministryRequestOptions
+        );
+      } catch (firstError) {
+        const isTimeout = firstError.code === "ECONNABORTED" || firstError.message?.includes("timeout");
+        if (isTimeout) {
+          logger.warn(`Ministry API timed out on first attempt for ${Assesmentno}, retrying...`);
+          ministryRes = await axios.get(
+            "https://selection.education.go.ke/api/api/v1/open/verify-selection",
+            ministryRequestOptions
+          );
+        } else {
+          throw firstError;
+        }
+      }
+
+      const data = ministryRes.data;
       if (!data.success) {
         flags.push({ reason: "Assessment number not found in government database" });
       } else {
@@ -112,8 +128,14 @@ const worker = new Worker(
         logger.info(`Ministry check: ${student.student_name} | ${student.gender} | ${student.county_of_residence} | KNEC: ${govKnecCode}`);
       }
     } catch (error) {
-      flags.push({ reason: "Could not reach ministry of education database" });
-      logger.error(`Ministry API failed: ${error.message}`);
+      const isTimeout = error.code === "ECONNABORTED" || error.message?.includes("timeout");
+      if (isTimeout) {
+        flags.push({ reason: "Ministry of Education database did not respond in time" });
+        logger.error(`Ministry API timed out after retry for assessment ${Assesmentno}: ${error.message}`);
+      } else {
+        flags.push({ reason: "Could not reach ministry of education database" });
+        logger.error(`Ministry API failed for assessment ${Assesmentno}: ${error.message}`);
+      }
     }
 
     try {
