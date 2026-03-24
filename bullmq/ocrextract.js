@@ -18,6 +18,16 @@ const namesMatch = (name1, name2, threshold = 3) => {
 const extractdocumentdata = async (filepath) => {
   if(!filepath)return null;
   try {
+    // Log file metadata before sending to OCR.space
+    let filesize = null;
+    try {
+      const stat = fs.statSync(filepath);
+      filesize = stat.size;
+    } catch (staterr) {
+      console.warn(`[OCR] Could not stat file ${filepath}:`, staterr.message);
+    }
+    console.log(`\n[OCR] Sending file to OCR.space — path: ${filepath}, size: ${filesize !== null ? `${filesize} bytes` : 'unknown'}`);
+
     const form = new FormData();
     form.append('file', fs.createReadStream(filepath));
     form.append('language', 'eng');
@@ -38,13 +48,45 @@ const extractdocumentdata = async (filepath) => {
       }
     );
 
-    const text = ocrres.data?.ParsedResults?.[0]?.ParsedText || '';
+    // Log HTTP status and full raw response for diagnostics
+    console.log(`[OCR] HTTP status: ${ocrres.status}`);
+    console.log(`[OCR] Full response for ${filepath}:`, JSON.stringify(ocrres.data, null, 2));
+
+    // Check for an API-level error returned in the response body
+    const apiErrorMsg = ocrres.data?.ErrorMessage;
+    const exitCode = ocrres.data?.OCRExitCode;
+    if (apiErrorMsg || (exitCode !== undefined && exitCode !== 1)) {
+      const errorDetail = Array.isArray(apiErrorMsg) ? apiErrorMsg.join('; ') : (apiErrorMsg || 'unknown error');
+      console.error(`[OCR] OCR.space API error for ${filepath} — exit code: ${exitCode}, message: ${errorDetail}`);
+      return null;
+    }
+
+    const parsedResult = ocrres.data?.ParsedResults?.[0];
+    const resultErrorMsg = parsedResult?.ErrorMessage;
+    if (resultErrorMsg) {
+      console.error(`[OCR] OCR.space parse error for ${filepath}:`, resultErrorMsg);
+      return null;
+    }
+
+    const text = parsedResult?.ParsedText || '';
     console.log(`\n=== OCR RESULT: ${filepath} ===`);
-    console.log(text);
+    console.log(text || '(empty — no text extracted)');
     console.log(`=== END OCR ===\n`);
+
+    if (!text) {
+      console.warn(`[OCR] OCR.space returned empty ParsedText for ${filepath} — document may be unreadable, unsupported format, or image quality too low`);
+    }
+
     return text;
   } catch (err) {
-    console.error(`OCR failed for ${filepath}:`, err.message);
+    // Distinguish between an HTTP/network error and a generic failure
+    if (err.response) {
+      console.error(`[OCR] OCR.space HTTP error for ${filepath} — status: ${err.response.status}, body:`, JSON.stringify(err.response.data));
+    } else if (err.request) {
+      console.error(`[OCR] OCR.space network error for ${filepath} — no response received (timeout or connectivity issue):`, err.message);
+    } else {
+      console.error(`[OCR] OCR request setup error for ${filepath}:`, err.message);
+    }
     return null; 
   }
 };
