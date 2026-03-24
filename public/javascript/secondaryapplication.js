@@ -1,7 +1,80 @@
+
+export function applications() {
+  // personal information
+  const nameinput = document.getElementById("nameinput");
+  const bithcertno = document.getElementById("bithcertno");
+  const gender = document.getElementById("gender");
+  const countyresidence = document.getElementById("Countyresidence");
+  const subcounty = document.getElementById("subcounty");
+  const wardlevel = document.getElementById("wardlevel");
+  const personalemail = document.getElementById("personalemail");
+
+  // school information
+  const schoolname = document.getElementById("schoolname");
+  const primarySchoolemail = document.getElementById("PrimarySchoolemail");
+  const secondarySchoolemail = document.getElementById("SecondarySchoolemail");
+  const schoolcounty = document.getElementById("schoolcounty");
+  const kcpecode = document.getElementById("kcpecode");
+  const Assesmentno = document.getElementById("Assesmentno");
+  const kcpeyear = document.getElementById("KCPE Year");
+  const kcpemarks = document.getElementById("kcpemarks");
+  const currentform = document.getElementById("currentform");
+  const admissionno = document.getElementById("Admissionno");
+  const schooltype = document.getElementById("schooltype");
+
+  // guadian details
+
+  const guardianname = document.getElementById("Guardianname");
+  const Guardiankrapin = document.getElementById("Guardiankrapin");
+  const guardianphoneno = document.getElementById("Guardianphoneno");
+  const guardianID = document.getElementById("GuardianID");
+  const relationshiptostudent = document.getElementById(
+    "Relationshiptostudent",
+  );
+  const occupation = document.getElementById("Occupation");
+  const guardianlocation = document.getElementById("guardianlocation");
+  const guardiansincome = document.getElementById("guardiansincome");
+
+  //   household section
+
+  const numberofsiblings = document.getElementById("numberofsiblings");
+  const siblingsinschool = document.getElementById("siblingsinschool");
+  const orphanstatus = document.getElementById("prphanstatus");
+  const housingstatus = document.getElementById("housingstatus");
+
+  const declarationcheck = document.getElementById("declarationcheck");
+
+  // file upload section
+
+  const siblingscert = document.getElementById("numberofsiblingscert");
+  const disabilitystatus = document.getElementById("disabilitystatus");
+
+  const birthcertificate = document.getElementById("birthcertificate");
+  const admissionletter = document.getElementById("AdmissionLetter");
+  const feestructure = document.getElementById("Fee Structure");
+  const schoolreport = document.getElementById("SchoolIDReportCard");
+  const DeathCertificates = document.getElementById("DeathCertificates");
+
+  const guardiannationalid = document.getElementById("GuardianNationalID");
+
+  const proofofincome = document.getElementById("Proofofincome");
+
+  const deathcertificates = document.getElementById("DeathCertificates");
+  const disabilitycertificates = document.getElementById(
+    "DisabilityCertificates",
+  );
+  const chiefsletter = document.getElementById("ChiefsLetter");
+  const passportphoto = document.getElementById("PassportPhoto");
+
+  const submitbtn = document.getElementById("submitbtn");
+  const submittedresults = document.getElementById("submittedresults");
+
+
+
 submitbtn.addEventListener("click", async () => {
   const formStartTime = Date.now();
 
-  // ========== VALIDATION FIRST ==========
+
   if (!declarationcheck.checked) {
     submittedresults.textContent = "Please accept the declaration before submitting!";
     return;
@@ -28,8 +101,8 @@ submitbtn.addEventListener("click", async () => {
     return;
   }
 
-  // ========== CHUNK UPLOAD FUNCTION ==========
-  const CHUNK_SIZE = 512 * 1024; // 512KB per chunk
+  
+  const CHUNK_SIZE = 512 * 1024; 
 
   async function uploadFileInChunks(file, fieldName) {
     const fileId = `${fieldName}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -41,7 +114,7 @@ submitbtn.addEventListener("click", async () => {
       let attempts = 0;
       let success = false;
 
-      // retry up to 3 times per chunk (handles mobile drops)
+      //
       while (attempts < 3 && !success) {
         try {
           const res = await fetch("/secondary/upload-chunk", {
@@ -66,7 +139,7 @@ submitbtn.addEventListener("click", async () => {
         }
       }
 
-      // update progress
+      
       const percent = Math.round(((i + 1) / totalChunks) * 100);
       submitbtn.textContent = `⏳ Uploading ${fieldName}... ${percent}%`;
     }
@@ -74,12 +147,12 @@ submitbtn.addEventListener("click", async () => {
     return fileId;
   }
 
-  // ========== START SUBMISSION ==========
+  
   submitbtn.disabled = true;
   submittedresults.classList.remove("hidden");
 
   try {
-    // Upload required files one by one
+  
     submitbtn.textContent = "⏳ Uploading files... please wait";
 
     const fileIds = {};
@@ -156,3 +229,4 @@ submitbtn.addEventListener("click", async () => {
     setTimeout(() => submittedresults.classList.add("hidden"), 4000);
   }
 });
+}
