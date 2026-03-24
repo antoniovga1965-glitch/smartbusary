@@ -16,7 +16,7 @@ export function applications() {
   const schoolcounty = document.getElementById("schoolcounty");
   const kcpecode = document.getElementById("kcpecode");
   const Assesmentno = document.getElementById("Assesmentno");
-  const kcpeyear = document.getElementById("KCPE Year");
+  const kcpeyear = document.getElementById("KCPEYear");
   const kcpemarks = document.getElementById("kcpemarks");
   const currentform = document.getElementById("currentform");
   const admissionno = document.getElementById("Admissionno");
@@ -51,7 +51,7 @@ export function applications() {
 
   const birthcertificate = document.getElementById("birthcertificate");
   const admissionletter = document.getElementById("AdmissionLetter");
-  const feestructure = document.getElementById("Fee Structure");
+  const feestructure = document.getElementById("FeeStructure");
   const schoolreport = document.getElementById("SchoolIDReportCard");
   const DeathCertificates = document.getElementById("DeathCertificates");
 
