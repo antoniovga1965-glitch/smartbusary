@@ -17,6 +17,8 @@ export function applications() {
   const kcpecode = document.getElementById("kcpecode");
   const Assesmentno = document.getElementById("Assesmentno");
   const kcpeyear = document.getElementById("KCPEYear");
+
+
   const kcpemarks = document.getElementById("kcpemarks");
   const currentform = document.getElementById("currentform");
   const admissionno = document.getElementById("Admissionno");
