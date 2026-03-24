@@ -148,7 +148,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 10 * 1024 * 1024 },
+  limits: { fileSize: 20 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (
       file.mimetype.startsWith("image/png") ||
@@ -161,6 +161,52 @@ const upload = multer({
     }
   },
 });
+
+// Extend the socket timeout for the upload endpoint to accommodate slower
+// mobile connections. The default Express/Node timeout (2 min) is often too
+// short for multi-file uploads over a 3G/4G link.
+const uploadTimeout = (req, res, next) => {
+  req.socket.setTimeout(5 * 60 * 1000); // 5 minutes
+  res.setTimeout(5 * 60 * 1000, () => {
+    logger.warn(
+      `Upload request timed out for IP: ${req.headers["x-forwarded-for"] || req.socket.remoteAddress}`,
+    );
+    if (!res.headersSent) {
+      res
+        .status(408)
+        .json({ message: "Upload timed out — please try again on a stable connection" });
+    }
+  });
+  next();
+};
+
+// Multer error handler — must have the (err, req, res, next) signature so
+// Express treats it as an error-handling middleware.
+const handleUploadError = (err, req, res, next) => {
+  if (!err) return next();
+
+  // Connection dropped mid-upload (common on mobile networks)
+  if (err.code === "ECONNABORTED" || err.message === "Request aborted") {
+    logger.warn(
+      `Upload aborted by client — IP: ${req.headers["x-forwarded-for"] || req.socket.remoteAddress}, UA: ${req.headers["user-agent"]}`,
+    );
+    return res.status(400).json({ message: "Upload interrupted — please try again" });
+  }
+
+  // Individual file exceeds the multer fileSize limit
+  if (err.code === "LIMIT_FILE_SIZE") {
+    return res.status(413).json({ message: "File too large — each file must be under 20 MB" });
+  }
+
+  // Any other multer-specific error (wrong field name, too many files, etc.)
+  if (err.name === "MulterError") {
+    logger.warn(`Multer error during upload: ${err.message}`);
+    return res.status(422).json({ message: `Upload error: ${err.message}` });
+  }
+
+  // Not a multer error — pass it down to the global error handler
+  next(err);
+};
 
 const documents = [
   { name: "birthcertificate", max: 1 },
@@ -188,7 +234,9 @@ const generateDeviceFingerprint = (req) => {
 };
 router.post(
   "/secondaryapplicants",
+  uploadTimeout,
   upload.fields(documents),
+  handleUploadError,
   verifyschemas,
   validateFiles,
   limit,
