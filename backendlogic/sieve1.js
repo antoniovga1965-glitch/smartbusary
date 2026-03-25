@@ -117,7 +117,7 @@ const secondaryapplicantshemas = z.object({
   currentform: z.enum(["Form 1", "Form 2", "Form 3", "Form 4"], { errorMap: () => ({ message: "Please select current form" }) }),
   admissionno: z.string().regex(/\b\d{1,5}\b/, "Admission number is required"),
   schooltype: z.enum(['National', "Public", "Private", "Extra County", "County", "Sub-county"], { errorMap: () => ({ message: "Select school category" }) }),
-  Guardian_krapin: z.string().regex(/^[A-Z]\d{9}[A-Z]$/, "Invalid KRA PIN format"),
+  Guardian_krapin: z.string().trim().regex(/^[A-Z]\d{9}[A-Z]$/, "Invalid KRA PIN format"),
   guardianname: z.string().min(2, "Guardian name is required"),
   guardianphoneno: z.string().regex(/^(?:254|\+254|0)?(7|1)\d{8}$/, "Invalid Kenyan phone number"),
   guardianID: z.string().min(6, "ID Number is too short").max(10),
