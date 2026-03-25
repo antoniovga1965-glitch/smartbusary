@@ -132,6 +132,7 @@ const secondaryapplicantshemas = z.object({
   disabilitystatus: z.enum(["disabled", "not disabled"], { errorMap: () => ({ message: "Please select a valid disability status" }) }),
    timeToSubmit: z.coerce.number().optional(),}).passthrough();
 
+
 const validateFiles = (req, res, next) => {
   const requiredFiles = [
     "birthcertificate", "admissionletter", "feestructure",
@@ -139,23 +140,30 @@ const validateFiles = (req, res, next) => {
     "chiefsletter", "passportphoto",
   ];
   const fileIds = req.body.fileIds;
-  console.log("FILEIDS RECEIVED:", JSON.stringify(fileIds)); // 👈
-  if (!fileIds) {
-    console.log("NO FILEIDS"); // 👈
-    return res.status(422).json({ message: "No files uploaded" });
-  }
+  if (!fileIds) return res.status(422).json({ message: "No files uploaded" });
   for (const field of requiredFiles) {
     const fileId = fileIds[field];
-    if (!fileId) {
-      console.log(`MISSING FILEID: ${field}`); // 👈
-      return res.status(422).json({ message: `${field} is required` });
-    }
+    if (!fileId) return res.status(422).json({ message: `${field} is required` });
     const filePath = chunkRegistry.get(fileId);
-    console.log(`${field} → fileId: ${fileId} → path: ${filePath}`); // 👈
     if (!filePath || !fs.existsSync(filePath)) {
-      console.log(`FILE MISSING ON DISK: ${field}`); // 👈
-      return res.status(422).json({ message: `${field} upload incomplete — please try again` });
+      return res.status(422).json({ message: `${field} upload incomplete` });
     }
+  }
+  next();
+};
+
+
+const verifyschemas = (req, res, next) => {
+  const verifiedscheme = secondaryapplicantshemas.safeParse(req.body);
+  if (!verifiedscheme.success) {
+    console.log("ZOD ERRORS:", JSON.stringify(verifiedscheme.error?.errors));
+    return res.status(422).json({
+      message: "Check your fields and try again",
+      errors: verifiedscheme.error?.errors?.map((e) => ({
+        field: e.path.join("."),
+        message: e.message,
+      })) || [],
+    });
   }
   next();
 };
