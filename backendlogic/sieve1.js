@@ -13,6 +13,7 @@ const { checkBehavioralPatterns } = require("../bullmq/bottracking");
 const logger = require("../security/winston");
 const getresend = require('../helpers/email');
 const cloudinary = require('cloudinary').v2;
+require('dotenv').config();
 
 if (!fs.existsSync("uploads")) fs.mkdirSync("uploads");
 if (!fs.existsSync("uploads_tmp")) fs.mkdirSync("uploads_tmp");
