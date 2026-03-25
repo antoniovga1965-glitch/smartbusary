@@ -230,7 +230,7 @@ submitbtn.addEventListener("click", async () => {
     });
 
     const data = await response.json();
-    alert(JSON.stringify(fileIds));
+  
     
     submitbtn.disabled = false;
     submitbtn.textContent = "Submit Application";
