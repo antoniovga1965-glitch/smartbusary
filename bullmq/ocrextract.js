@@ -1,16 +1,36 @@
 const axios = require('axios');
 const FormData = require('form-data');
 const fs = require('fs');
+const path = require('path');
+const { v4: uuidv4 } = require('uuid');
 
 const extractdocumentdata = async (filepath) => {
   if (!filepath) return null;
+  let localPath = filepath;
+  let tempFile = null;
+  if (filepath.startsWith('http')) {
+    tempFile = path.join('uploads_tmp', `${uuidv4()}.jpg`);
+    try {
+      const response = await axios.get(filepath, { responseType: 'stream' });
+      const writer = fs.createWriteStream(tempFile);
+      await new Promise((resolve, reject) => {
+        response.data.pipe(writer);
+        writer.on('finish', resolve);
+        writer.on('error', reject);
+      });
+      localPath = tempFile;
+    } catch (err) {
+      console.error(`[OCR] Failed to download from Cloudinary: ${err.message}`);
+      return null;
+    }
+  }
   for (let ocrAttempt = 1; ocrAttempt <= 2; ocrAttempt++) {
     try {
       let filesize = null;
-      try { filesize = fs.statSync(filepath).size; } catch (err) {}
-      console.log(`[OCR] Attempt ${ocrAttempt} — processing ${filepath}, size: ${filesize ?? 'unknown'} bytes`);
+      try { filesize = fs.statSync(localPath).size; } catch (err) {}
+      console.log(`[OCR] Attempt ${ocrAttempt} — processing ${localPath}, size: ${filesize ?? 'unknown'} bytes`);
       const form = new FormData();
-      form.append('file', fs.createReadStream(filepath));
+      form.append('file', fs.createReadStream(localPath));
       form.append('language', 'eng');
       form.append('isOverlayRequired', 'false');
       form.append('scale', 'true');
@@ -26,10 +46,14 @@ const extractdocumentdata = async (filepath) => {
       const exitCode = ocrres.data?.OCRExitCode;
       if (apiErrorMsg || (exitCode !== undefined && exitCode !== 1)) return null;
       if (parsedResult?.ErrorMessage) return null;
+      if (tempFile && fs.existsSync(tempFile)) fs.unlinkSync(tempFile);
       return text;
     } catch (err) {
       console.error(`[OCR] Attempt ${ocrAttempt} failed: ${err.message}`);
-      if (ocrAttempt === 2) return null;
+      if (ocrAttempt === 2) {
+        if (tempFile && fs.existsSync(tempFile)) fs.unlinkSync(tempFile);
+        return null;
+      }
     }
   }
 };
