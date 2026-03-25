@@ -234,6 +234,7 @@ submitbtn.addEventListener("click", async () => {
   } catch (err) {
     submitbtn.disabled = false;
     submitbtn.textContent = "Submit Application";
+    alert(err.message); 
     submittedresults.textContent = "Upload failed — check your connection and try again.";
     setTimeout(() => submittedresults.classList.add("hidden"), 4000);
   }
