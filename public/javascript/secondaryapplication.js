@@ -4,36 +4,36 @@ export function applications() {
   const nameinput = document.getElementById("nameinput");
   const bithcertno = document.getElementById("bithcertno");
   const gender = document.getElementById("gender");
-  const countyresidence = document.getElementById("Countyresidence");
+  const countyresidence = document.getElementById("countyresidence");
   const subcounty = document.getElementById("subcounty");
   const wardlevel = document.getElementById("wardlevel");
   const personalemail = document.getElementById("personalemail");
 
   // school information
   const schoolname = document.getElementById("schoolname");
-  const primarySchoolemail = document.getElementById("PrimarySchoolemail");
-  const secondarySchoolemail = document.getElementById("SecondarySchoolemail");
+  const primarySchoolemail = document.getElementById("primarySchoolemail");
+  const secondarySchoolemail = document.getElementById("secondarySchoolemail");
   const schoolcounty = document.getElementById("schoolcounty");
   const kcpecode = document.getElementById("kcpecode");
   const Assesmentno = document.getElementById("Assesmentno");
-  const kcpeyear = document.getElementById("KCPEYear");
+  const kcpeyear = document.getElementById("kcpeyear");
 
 
   const kcpemarks = document.getElementById("kcpemarks");
   const currentform = document.getElementById("currentform");
-  const admissionno = document.getElementById("Admissionno");
+  const admissionno = document.getElementById("admissionno");
   const schooltype = document.getElementById("schooltype");
 
   // guadian details
 
-  const guardianname = document.getElementById("Guardianname");
-  const Guardiankrapin = document.getElementById("Guardiankrapin");
-  const guardianphoneno = document.getElementById("Guardianphoneno");
-  const guardianID = document.getElementById("GuardianID");
+  const guardianname = document.getElementById("guardianname");
+  const Guardiankrapin = document.getElementById("Guardian_krapin");
+  const guardianphoneno = document.getElementById("guardianphoneno");
+  const guardianID = document.getElementById("guardianID");
   const relationshiptostudent = document.getElementById(
-    "Relationshiptostudent",
+    "relationshiptostudent",
   );
-  const occupation = document.getElementById("Occupation");
+  const occupation = document.getElementById("occupation");
   const guardianlocation = document.getElementById("guardianlocation");
   const guardiansincome = document.getElementById("guardiansincome");
 
@@ -41,7 +41,7 @@ export function applications() {
 
   const numberofsiblings = document.getElementById("numberofsiblings");
   const siblingsinschool = document.getElementById("siblingsinschool");
-  const orphanstatus = document.getElementById("prphanstatus");
+  const orphanstatus = document.getElementById("orphanstatus");
   const housingstatus = document.getElementById("housingstatus");
 
   const declarationcheck = document.getElementById("declarationcheck");
@@ -52,21 +52,21 @@ export function applications() {
   const disabilitystatus = document.getElementById("disabilitystatus");
 
   const birthcertificate = document.getElementById("birthcertificate");
-  const admissionletter = document.getElementById("AdmissionLetter");
-  const feestructure = document.getElementById("FeeStructure");
-  const schoolreport = document.getElementById("SchoolIDReportCard");
+  const admissionletter = document.getElementById("admissionletter");
+  const feestructure = document.getElementById("feestructure");
+  const schoolreport = document.getElementById("schoolreport");
   const DeathCertificates = document.getElementById("DeathCertificates");
 
-  const guardiannationalid = document.getElementById("GuardianNationalID");
+  const guardiannationalid = document.getElementById("guardiannationalid");
 
-  const proofofincome = document.getElementById("Proofofincome");
+  const proofofincome = document.getElementById("proofofincome");
 
   const deathcertificates = document.getElementById("DeathCertificates");
   const disabilitycertificates = document.getElementById(
-    "DisabilityCertificates",
+    "disabilitycertificates",
   );
-  const chiefsletter = document.getElementById("ChiefsLetter");
-  const passportphoto = document.getElementById("PassportPhoto");
+  const chiefsletter = document.getElementById("chiefsletter");
+  const passportphoto = document.getElementById("passportphoto");
 
   const submitbtn = document.getElementById("submitbtn");
   const submittedresults = document.getElementById("submittedresults");
