@@ -28,13 +28,12 @@ setInterval(() => {
   }
 }, 30 * 60 * 1000);
 
-router.post("/upload-chunk", express.raw({ type: "*/*", limit: "10mb" }), (req, res) => {
+router.post("/upload-chunk", (req, res) => {
   const { fileid, chunknumber, totalchunks, filename } = req.headers;
-
-    console.log("HEADERS:", JSON.stringify(req.headers));
+  console.log("HEADERS:", JSON.stringify(req.headers));
   console.log("BODY TYPE:", typeof req.body, Buffer.isBuffer(req.body));
   console.log("BODY LENGTH:", req.body?.length);
-  try {
+  try  {
     const { fileid, chunknumber, totalchunks, filename } = req.headers;
 
     if (!fileid || !chunknumber || !totalchunks || !filename) {
