@@ -230,9 +230,14 @@ router.post("/secondaryapplicants", limit, verifyjwt, verifyschemas, validateFil
     Guardian_krapin, personalemail, fileIds,
   } = req.body;
 
-  // ✅ resolve all file paths from chunkRegistry
-  const resolveFile = (field) => chunkRegistry.get(fileIds[field]) || null;
 
+
+  const resolveFile = (field) => {
+  const val = chunkRegistry.get(fileIds[field]);
+  return val ? val.trim() : null;
+};
+
+  
   const resolvedFiles = {
     birthcertificate: resolveFile("birthcertificate"),
     admissionletter: resolveFile("admissionletter"),
@@ -259,15 +264,24 @@ router.post("/secondaryapplicants", limit, verifyjwt, verifyschemas, validateFil
     }
 
     
-    const hashfile = (filepath) => {
-      const buffer = fs.readFileSync(filepath);
-      return crypto.createHash("sha256").update(buffer).digest("hex");
-    };
-
-    const hashes = Object.values(resolvedFiles)
-      .filter(Boolean)
-      .map(hashfile);
-
+   const hashfile = async (filepath) => {
+  const isUrl = filepath.startsWith('http://') || filepath.startsWith('https://');
+  
+  if (isUrl) {
+    const response = await fetch(filepath);
+    const buffer = Buffer.from(await response.arrayBuffer());
+    return crypto.createHash("sha256").update(buffer).digest("hex");
+  } else {
+    const buffer = fs.readFileSync(filepath);
+    return crypto.createHash("sha256").update(buffer).digest("hex");
+  }
+};
+    
+const hashes = await Promise.all(
+  Object.values(resolvedFiles)
+    .filter(Boolean)
+    .map(file => hashfile(file))
+);
     const duplicates = await prisma.Application.findFirst({
       where: { filehashes: { hasSome: hashes } },
     });
