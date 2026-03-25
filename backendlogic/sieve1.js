@@ -73,6 +73,7 @@ router.post("/upload-chunk", (req, res) => {
           writeStream.write(fs.readFileSync(path.join(tempDir, chunkFile)));
         }
 
+        // ✅ Move response INSIDE the callback
         writeStream.end(async () => {
           try {
             const result = await cloudinary.uploader.upload(finalPath, {
@@ -81,19 +82,26 @@ router.post("/upload-chunk", (req, res) => {
               use_filename: true,
               unique_filename: true,
             });
-            chunkRegistry.set(fileid, result.secure_url); // 👈 store Cloudinary URL
+            chunkRegistry.set(fileid, result.secure_url);
             console.log(`Uploaded to Cloudinary: ${result.secure_url}`);
-            fs.unlinkSync(finalPath); // delete local file
+            fs.unlinkSync(finalPath);
+            
+            // ✅ Only respond AFTER Cloudinary upload succeeds
+            fs.rmSync(tempDir, { recursive: true, force: true });
+            return res.json({ message: `Chunk ${chunknumber} uploaded`, fileId: fileid, url: result.secure_url });
+            
           } catch (uploadErr) {
             console.error(`Cloudinary upload failed: ${uploadErr.message}`);
-            chunkRegistry.set(fileid, finalPath); // fallback to local path
+            chunkRegistry.set(fileid, finalPath);
+            fs.rmSync(tempDir, { recursive: true, force: true });
+            return res.json({ message: `Chunk ${chunknumber} uploaded (local fallback)`, fileId: fileid });
           }
         });
 
-        fs.rmSync(tempDir, { recursive: true, force: true });
+      } else {
+        // Not last chunk, respond immediately
+        res.json({ message: `Chunk ${chunknumber} uploaded` });
       }
-
-      res.json({ message: `Chunk ${chunknumber} uploaded` });
 
     } catch (err) {
       console.error("Error handling chunk upload:", err);
