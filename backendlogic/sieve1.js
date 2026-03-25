@@ -28,23 +28,33 @@ setInterval(() => {
   }
 }, 30 * 60 * 1000);
 
-router.post("/upload-chunk", express.raw({ type: "*/*", limit: "2mb" }), (req, res) => {
+router.post("/upload-chunk", (req, res, next) => {
+  express.raw({ type: "*/*", limit: "2mb" })(req, res, (err) => {
+    if (err) return res.status(500).json({ message: "Body parse error" });
+    next();
+  });
+}, (req, res) => {
   try {
     const { fileid, chunknumber, totalchunks, filename } = req.headers;
+
     if (!fileid || !chunknumber || !totalchunks || !filename) {
       return res.status(400).json({ message: "Missing chunk headers" });
     }
 
+    
+    if (!req.body || !Buffer.isBuffer(req.body) || req.body.length === 0) {
+      return res.status(400).json({ message: "No chunk data received" });
+    }
+
     const tempDir = path.join("uploads_tmp", fileid);
-    if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
+    if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
 
     const chunkPath = path.join(tempDir, `chunk_${chunknumber}`);
-    fs.writeFileSync(chunkPath, req.body);
-    console.log(`Received chunk ${chunknumber}/${totalchunks} for ${filename}`);
+    fs.writeFileSync(chunkPath, req.body); 
 
     const receivedChunks = fs.readdirSync(tempDir).filter(f => f.startsWith("chunk_")).length;
 
-    if (receivedChunks == totalchunks) {
+    if (receivedChunks == parseInt(totalchunks)) {
       const finalPath = path.join("uploads", `${Date.now()}-${filename}`);
       const writeStream = fs.createWriteStream(finalPath);
 
@@ -59,7 +69,6 @@ router.post("/upload-chunk", express.raw({ type: "*/*", limit: "2mb" }), (req, r
 
       writeStream.end(() => {
         console.log(`File ${filename} assembled at ${finalPath}`);
-     
         chunkRegistry.set(fileid, finalPath);
       });
 
@@ -72,7 +81,6 @@ router.post("/upload-chunk", express.raw({ type: "*/*", limit: "2mb" }), (req, r
     res.status(500).json({ message: "Server error uploading chunk" });
   }
 });
-
 
 const limit = limitor({
   windowMs: 15 * 60 * 1000,
