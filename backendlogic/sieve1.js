@@ -34,7 +34,6 @@ router.post("/upload-chunk", (req, res) => {
   console.log("BODY TYPE:", typeof req.body, Buffer.isBuffer(req.body));
   console.log("BODY LENGTH:", req.body?.length);
   try  {
-    const { fileid, chunknumber, totalchunks, filename } = req.headers;
 
     if (!fileid || !chunknumber || !totalchunks || !filename) {
       return res.status(400).json({ message: "Missing chunk headers" });
