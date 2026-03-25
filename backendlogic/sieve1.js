@@ -29,55 +29,66 @@ setInterval(() => {
 }, 30 * 60 * 1000);
 
 router.post("/upload-chunk", (req, res) => {
-  const { fileid, chunknumber, totalchunks, filename } = req.headers;
-  console.log("HEADERS:", JSON.stringify(req.headers));
-  console.log("BODY TYPE:", typeof req.body, Buffer.isBuffer(req.body));
-  console.log("BODY LENGTH:", req.body?.length);
-  try  {
+  const chunks = [];
+
+  req.on('data', (chunk) => {
+    chunks.push(chunk);
+  });
+
+  req.on('end', () => {
+    const body = Buffer.concat(chunks);
+    const { fileid, chunknumber, totalchunks, filename } = req.headers;
 
     if (!fileid || !chunknumber || !totalchunks || !filename) {
       return res.status(400).json({ message: "Missing chunk headers" });
     }
 
-    if (!req.body || !Buffer.isBuffer(req.body) || req.body.length === 0) {
+    if (!body || body.length === 0) {
       return res.status(400).json({ message: "No chunk data received" });
     }
 
-    const tempDir = path.join("uploads_tmp", fileid);
-    if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
+    try {
+      const tempDir = path.join("uploads_tmp", fileid);
+      if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
 
-    const chunkPath = path.join(tempDir, `chunk_${chunknumber}`);
-    fs.writeFileSync(chunkPath, req.body);
+      const chunkPath = path.join(tempDir, `chunk_${chunknumber}`);
+      fs.writeFileSync(chunkPath, body);
 
-    const receivedChunks = fs.readdirSync(tempDir).filter(f => f.startsWith("chunk_")).length;
+      const receivedChunks = fs.readdirSync(tempDir).filter(f => f.startsWith("chunk_")).length;
 
-    if (receivedChunks == parseInt(totalchunks)) {
-      const finalPath = path.join("uploads", `${Date.now()}-${filename}`);
-      const writeStream = fs.createWriteStream(finalPath);
+      if (receivedChunks == parseInt(totalchunks)) {
+        const finalPath = path.join("uploads", `${Date.now()}-${filename}`);
+        const writeStream = fs.createWriteStream(finalPath);
 
-      const chunks = fs.readdirSync(tempDir)
-        .filter(f => f.startsWith("chunk_"))
-        .sort((a, b) => parseInt(a.split("_")[1]) - parseInt(b.split("_")[1]));
+        const chunkFiles = fs.readdirSync(tempDir)
+          .filter(f => f.startsWith("chunk_"))
+          .sort((a, b) => parseInt(a.split("_")[1]) - parseInt(b.split("_")[1]));
 
-      for (const chunkFile of chunks) {
-        const chunkData = fs.readFileSync(path.join(tempDir, chunkFile));
-        writeStream.write(chunkData);
+        for (const chunkFile of chunkFiles) {
+          const chunkData = fs.readFileSync(path.join(tempDir, chunkFile));
+          writeStream.write(chunkData);
+        }
+
+        writeStream.end(() => {
+          console.log(`File ${filename} assembled at ${finalPath}`);
+          chunkRegistry.set(fileid, finalPath);
+        });
+
+        fs.rmSync(tempDir, { recursive: true, force: true });
       }
 
-      writeStream.end(() => {
-        console.log(`File ${filename} assembled at ${finalPath}`);
-        chunkRegistry.set(fileid, finalPath);
-      });
+      res.json({ message: `Chunk ${chunknumber} uploaded` });
 
-      fs.rmSync(tempDir, { recursive: true, force: true });
+    } catch (err) {
+      console.error("Error handling chunk upload:", err);
+      res.status(500).json({ message: "Server error uploading chunk" });
     }
+  });
 
-    res.json({ message: `Chunk ${chunknumber} uploaded` });
-
-  } catch (err) {
-    console.error("Error handling chunk upload:", err);
-    res.status(500).json({ message: "Server error uploading chunk" });
-  }
+  req.on('error', (err) => {
+    console.error("Stream error:", err);
+    res.status(500).json({ message: "Stream error" });
+  });
 });
 
 const limit = limitor({
