@@ -5,7 +5,10 @@ const cors  =require('cors');
 const cookieparser = require('cookie-parser');
 
 
-app.use(express.json())
+app.use((req, res, next) => {
+  if (req.path === '/upload-chunk') return next();
+  express.json()(req, res, next);
+});
 app.use(express.static('public'));
 app.set('trust proxy', 1);
 
