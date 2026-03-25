@@ -138,6 +138,9 @@ submitbtn.addEventListener("click", async () => {
             body: chunk,
             credentials: "include",
           });
+          
+  const responseText = await res.text(); 
+          alert(`Status: ${res.status} — ${responseText}`);
 
           if (!res.ok) throw new Error(`Chunk ${i + 1} failed`);
           success = true;
