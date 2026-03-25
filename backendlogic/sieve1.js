@@ -130,10 +130,7 @@ const secondaryapplicantshemas = z.object({
   orphanstatus: z.enum(["Not orphan", "Partial orphan", "Orphan"]),
   housingstatus: z.enum(["Owned", "Rented", "Living with relative", "Informal settlement"]),
   disabilitystatus: z.enum(["disabled", "not disabled"], { errorMap: () => ({ message: "Please select a valid disability status" }) }),
-   timeToSubmit: z.coerce.number().optional(),
-}).passthrough();
-});
-
+   timeToSubmit: z.coerce.number().optional(),}).passthrough();
 
 const validateFiles = (req, res, next) => {
   const requiredFiles = [
