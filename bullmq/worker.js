@@ -64,6 +64,7 @@ const https  =require('https');
 //     if (birthcertuse > 0) flags.push({ reason: 'Birth certificate number already used somewhere else' });
 //     if (ipadresscount > 50) flags.push({ reason: 'More than 50 applications coming from this IP' });
 
+<<<<<<< HEAD
 //   //  Assesmentno
     
    async function call(retries = 2) {
@@ -87,6 +88,80 @@ const https  =require('https');
     if (retries > 0) {
       console.log("Retrying MOE...");
       return call(retries - 1);
+=======
+   
+    const ministryRequestOptions = {
+      params: { assessment_number: Assesmentno },
+      headers: {
+        Accept: "application/json",
+        Referer: "https://selection.education.go.ke/my-selections",
+      },
+      httpsAgent: new https.Agent({ rejectUnauthorized: false }),
+      timeout: 30000,
+    };
+
+    try {
+      let ministryRes;
+      try {
+        ministryRes = await axios.get(
+          "https://selection.education.go.ke/api/api/v1/open/verify-selection",
+          ministryRequestOptions
+        );
+      } catch (firstError) {
+        const isTimeout = firstError.code === "ECONNABORTED" || firstError.message?.includes("timeout");
+        if (isTimeout) {
+          logger.warn(`Ministry API timed out on first attempt for ${Assesmentno}, retrying...`);
+          ministryRes = await axios.get(
+            "https://selection.education.go.ke/api/api/v1/open/verify-selection",
+            ministryRequestOptions
+          );
+        } else {
+          throw firstError;
+        }
+      }
+
+      const data = ministryRes.data;
+      if (!data.success) {
+        flags.push({ reason: "Assessment number not found in government database" });
+      } else {
+        const student = data.response.student;
+
+       
+        const returnedname = student.student_name?.toLowerCase() || "";
+        if (!returnedname.includes(nameinput?.toLowerCase().split(" ")[0])) {
+          flags.push({ reason: "Student name doesn't match government records" });
+        }
+
+       
+        const gokgender = student.gender?.toLowerCase() === "m" ? "male" : "female";
+        if (gokgender !== gender?.toLowerCase()) {
+          flags.push({ reason: "Gender does not match government records" });
+        }
+
+        const gokNormalized = student.disability?.toLowerCase() === "none" ? "not disabled" : "disabled";
+        if (gokNormalized !== disabilitystatus?.toLowerCase()) {
+          flags.push({ reason: "Disability status does not match government records" });
+        }
+
+       
+        const returnedcounty = student.county_of_residence?.toLowerCase() || "";
+        if (!returnedcounty.includes(countyresidence?.toLowerCase())) {
+          flags.push({ reason: "County of residence doesn't match government database" });
+        }
+
+        govKnecCode = student.knec_code || null;
+        logger.info(`Ministry check: ${student.student_name} | ${student.gender} | ${student.county_of_residence} | KNEC: ${govKnecCode}`);
+      }
+    } catch (error) {
+      const isTimeout = error.code === "ECONNABORTED" || error.message?.includes("timeout");
+      if (isTimeout) {
+        flags.push({ reason: "Ministry of Education database did not respond in time" });
+        logger.error(`Ministry API timed out after retry for assessment ${Assesmentno}: ${error.message}`);
+      } else {
+        flags.push({ reason: "Could not reach ministry of education database" });
+        logger.error(`Ministry API failed for assessment ${Assesmentno}: ${error.message}`);
+      }
+>>>>>>> 8947300fefd4c3f7e70c8fb6d1e54f3d0e2a1ade
     }
     console.error("Final failure:", error.message);
   }

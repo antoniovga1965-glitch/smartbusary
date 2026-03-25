@@ -1,275 +1,161 @@
 const axios = require('axios');
 const FormData = require('form-data');
 const fs = require('fs');
-const { distance } = require('fastest-levenshtein');
-require('dotenv').config();
-
-
-
-const namesMatch = (name1, name2, threshold = 3) => {
-  const a = name1?.toLowerCase().trim() || '';
-  const b = name2?.toLowerCase().trim() || '';
-  if (a.includes(b) || b.includes(a)) return true;
-  const firstName1 = a.split(' ')[0];
-  const firstName2 = b.split(' ')[0];
-  return distance(firstName1, firstName2) <= threshold;
-};
+const path = require('path');
+const { v4: uuidv4 } = require('uuid');
 
 const extractdocumentdata = async (filepath) => {
-  if(!filepath)return null;
-  try {
-    const form = new FormData();
-    form.append('file', fs.createReadStream(filepath));
-    form.append('language', 'eng');
-    form.append('isOverlayRequired', 'false');
-    form.append('scale', 'true');
-    form.append('detectOrientation', 'true');
-    form.append('OCREngine', '2');
-
-    const ocrres = await axios.post(
-      'https://api.ocr.space/parse/image',
-      form,
-      {
-        headers: {
-          ...form.getHeaders(),
-          'apikey': process.env.OCRAPIKEY,
-        },
-        timeout: 60000,
+  if (!filepath) return null;
+  let localPath = filepath;
+  let tempFile = null;
+  if (filepath.startsWith('http')) {
+    tempFile = path.join('uploads_tmp', `${uuidv4()}.jpg`);
+    try {
+      const response = await axios.get(filepath, { responseType: 'stream' });
+      const writer = fs.createWriteStream(tempFile);
+      await new Promise((resolve, reject) => {
+        response.data.pipe(writer);
+        writer.on('finish', resolve);
+        writer.on('error', reject);
+      });
+      localPath = tempFile;
+    } catch (err) {
+      console.error(`[OCR] Failed to download from Cloudinary: ${err.message}`);
+      return null;
+    }
+  }
+  for (let ocrAttempt = 1; ocrAttempt <= 2; ocrAttempt++) {
+    try {
+      let filesize = null;
+      try { filesize = fs.statSync(localPath).size; } catch (err) {}
+      console.log(`[OCR] Attempt ${ocrAttempt} — processing ${localPath}, size: ${filesize ?? 'unknown'} bytes`);
+      const form = new FormData();
+      form.append('file', fs.createReadStream(localPath));
+      form.append('language', 'eng');
+      form.append('isOverlayRequired', 'false');
+      form.append('scale', 'true');
+      form.append('detectOrientation', 'true');
+      form.append('OCREngine', '2');
+      const ocrres = await axios.post('https://api.ocr.space/parse/image', form, {
+        headers: { ...form.getHeaders(), 'apikey': process.env.OCRAPIKEY },
+        timeout: 120000,
+      });
+      const parsedResult = ocrres.data?.ParsedResults?.[0];
+      const text = parsedResult?.ParsedText || '';
+      const apiErrorMsg = ocrres.data?.ErrorMessage;
+      const exitCode = ocrres.data?.OCRExitCode;
+      if (apiErrorMsg || (exitCode !== undefined && exitCode !== 1)) return null;
+      if (parsedResult?.ErrorMessage) return null;
+      if (tempFile && fs.existsSync(tempFile)) fs.unlinkSync(tempFile);
+      return text;
+    } catch (err) {
+      console.error(`[OCR] Attempt ${ocrAttempt} failed: ${err.message}`);
+      if (ocrAttempt === 2) {
+        if (tempFile && fs.existsSync(tempFile)) fs.unlinkSync(tempFile);
+        return null;
       }
-    );
-
-    const text = ocrres.data?.ParsedResults?.[0]?.ParsedText || '';
-    console.log(`\n=== OCR RESULT: ${filepath} ===`);
-    console.log(text);
-    console.log(`=== END OCR ===\n`);
-    return text;
-  } catch (err) {
-    console.error(`OCR failed for ${filepath}:`, err.message);
-    return null; 
+    }
   }
 };
 
-
+const normalize = (str) => str?.toLowerCase().replace(/\s+/g, ' ').trim() || '';
 
 const checkBirthCertificate = async (filepath, nameinput, bithcertno, gender) => {
-  const text = await extractdocumentdata(filepath);
-  if (!text) return [{ reason: 'OCR failed — birth certificate could not be read' }];
-
-  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
   const flags = [];
-
-  const getAfter = (keyword) => {
-    const idx = lines.findIndex(l => l.toUpperCase().includes(keyword.toUpperCase()));
-    return idx !== -1 ? lines[idx + 1] : null;
-  };
-
-  const entryno = getAfter('No.');
-  const nameIdx = lines.findIndex(l => l.toUpperCase().includes('PROVINCE'));
-  const studentname = nameIdx !== -1 ? lines[nameIdx + 1] : null;
-  const sex = lines.find(l => l.toLowerCase() === 'male' || l.toLowerCase() === 'female');
-
-  if (entryno && entryno !== bithcertno) {
-    flags.push({ reason: 'Birth certificate number does not match uploaded certificate' });
-  }
-  if (studentname && !namesMatch(studentname, nameinput)) {
-    flags.push({ reason: 'Student name does not match birth certificate' });
-  }
-  if (sex && !sex.toLowerCase().includes(gender?.toLowerCase())) {
-    flags.push({ reason: 'Gender does not match birth certificate' });
-  }
-
-  return flags;
-};
-
-const checkDeathCertificate = async (filepath, guardianname, orphanstatus) => {
-  if (orphanstatus === 'Not orphan') return [];
-
   const text = await extractdocumentdata(filepath);
-  if (!text) return [{ reason: 'OCR failed — death certificate could not be read' }];
-
-  const lower = text.toLowerCase();
-  const flags = [];
-
-  const keywords = ['republic of kenya', 'certificate of death', 'civil registration', 'registrar', 'death'];
-  const found = keywords.filter(k => lower.includes(k));
-  if (found.length < 3) {
-    flags.push({ reason: 'Death certificate missing official keywords — may be fake' });
-  }
-  if (!namesMatch(text, guardianname)) {
-    flags.push({ reason: 'Name on death certificate does not match guardian records' });
-  }
-
+  if (!text) return [{ reason: 'Birth certificate could not be read' }];
+  const t = normalize(text);
+  const firstName = normalize(nameinput).split(' ')[0];
+  if (!t.includes(firstName)) flags.push({ reason: 'Name on birth certificate does not match application' });
+  if (bithcertno && !t.includes(normalize(bithcertno))) flags.push({ reason: 'Birth certificate number not found in document' });
   return flags;
 };
 
 const checkNationalID = async (filepath, guardianname, guardianID) => {
-  const text = await extractdocumentdata(filepath);
-  if (!text) return [{ reason: 'OCR failed — national ID could not be read' }];
-
-  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
   const flags = [];
-
-  const getAfter = (keyword) => {
-    const idx = lines.findIndex(l => l.toUpperCase().includes(keyword.toUpperCase()));
-    return idx !== -1 ? lines[idx + 1] : null;
-  };
-
-  const surname = getAfter('SURNAME');
-  const givenname = getAfter('GIVEN NAME');
-  const idnumber = getAfter('ID NUMBER');
-  const fullname = `${surname} ${givenname}`.trim();
-
-  if (idnumber && idnumber.replace(/\s/g, '') !== guardianID) {
-    flags.push({ reason: 'Guardian ID number does not match uploaded National ID' });
-  }
-  if (fullname && !namesMatch(fullname, guardianname)) {
-    flags.push({ reason: 'Guardian name does not match National ID' });
-  }
-
-  return flags;
-};
-
-const checkKRACertificate = async (filepath, Guardian_krapin, guardianname) => {
   const text = await extractdocumentdata(filepath);
-  if (!text) return [{ reason: 'OCR failed — KRA certificate could not be read' }];
-
-  const lower = text.toLowerCase();
-  const flags = [];
-
-  if (Guardian_krapin && !text.includes(Guardian_krapin)) {
-    flags.push({ reason: 'KRA PIN does not match uploaded KRA certificate' });
-  }
-  if (!namesMatch(text, guardianname)) {
-    flags.push({ reason: 'Guardian name does not match KRA certificate' });
-  }
-
+  if (!text) return [{ reason: 'National ID could not be read' }];
+  const t = normalize(text);
+  const firstName = normalize(guardianname).split(' ')[0];
+  if (!t.includes(firstName)) flags.push({ reason: 'Guardian name on ID does not match application' });
+  if (guardianID && !t.includes(guardianID)) flags.push({ reason: 'Guardian ID number not found in document' });
   return flags;
 };
 
 const checkAdmissionLetter = async (filepath, schoolname, admissionno, nameinput) => {
-  const text = await extractdocumentdata(filepath);
-  if (!text) return [{ reason: 'OCR failed — admission letter could not be read' }];
-
-  const lower = text.toLowerCase();
   const flags = [];
-
-  const schoolfirst = schoolname?.split(' ')[0]?.toLowerCase() || '';
-  if (!lower.includes(schoolfirst)) {
-    flags.push({ reason: 'School name does not match admission letter' });
-  }
-  if (admissionno && !text.includes(admissionno)) {
-    flags.push({ reason: 'Admission number does not match uploaded letter' });
-  }
-  if (!namesMatch(text, nameinput)) {
-    flags.push({ reason: 'Student name not found in admission letter' });
-  }
-
+  const text = await extractdocumentdata(filepath);
+  if (!text) return [{ reason: 'Admission letter could not be read' }];
+  const t = normalize(text);
+  const firstName = normalize(nameinput).split(' ')[0];
+  const school = normalize(schoolname).split(' ')[0];
+  if (!t.includes(firstName)) flags.push({ reason: 'Student name on admission letter does not match' });
+  if (!t.includes(school)) flags.push({ reason: 'School name on admission letter does not match' });
+  if (admissionno && !t.includes(normalize(admissionno))) flags.push({ reason: 'Admission number not found in letter' });
   return flags;
 };
 
 const checkSchoolReport = async (filepath, nameinput, schoolname, admissionno, govKnecCode) => {
-  const text = await extractdocumentdata(filepath);
-  if (!text) return [{ reason: 'OCR failed — school report could not be read' }];
-
-  const lower = text.toLowerCase();
   const flags = [];
-
-  if (!namesMatch(text, nameinput)) {
-    flags.push({ reason: 'Student name not found in school report' });
-  }
-  const schoolfirst = schoolname?.split(' ')[0]?.toLowerCase() || '';
-  if (!lower.includes(schoolfirst)) {
-    flags.push({ reason: 'School name does not match school report' });
-  }
-  if (admissionno && !text.includes(admissionno)) {
-    flags.push({ reason: 'Admission number in school report does not match' });
-  }
-
-  
-  const indexMatch = text.match(/(\d{8})\/\d+/);
-  const slipKnecCode = indexMatch?.[1];
-  if (slipKnecCode && govKnecCode && slipKnecCode !== govKnecCode) {
-    flags.push({ reason: `School code on result slip (${slipKnecCode}) does not match government records (${govKnecCode})` });
-  }
-
+  const text = await extractdocumentdata(filepath);
+  if (!text) return [{ reason: 'School report could not be read' }];
+  const t = normalize(text);
+  const firstName = normalize(nameinput).split(' ')[0];
+  if (!t.includes(firstName)) flags.push({ reason: 'Student name on school report does not match' });
+  if (govKnecCode && !t.includes(normalize(govKnecCode))) flags.push({ reason: 'KNEC code not found in school report' });
   return flags;
 };
 
 const checkChiefsLetter = async (filepath, guardianlocation) => {
-  const text = await extractdocumentdata(filepath);
-  if (!text) return [{ reason: 'OCR failed — chiefs letter could not be read' }];
-
-  const lower = text.toLowerCase();
   const flags = [];
-
-  const keywords = ['chief', 'location', 'sub-location', 'administration', 'signed', 'stamp'];
-  const found = keywords.filter(k => lower.includes(k));
-  if (found.length < 3) {
-    flags.push({ reason: 'Chiefs letter missing official keywords — may be fake' });
-  }
-
-  const location = guardianlocation?.split(' ')[0]?.toLowerCase() || '';
-  if (location && !lower.includes(location)) {
-    flags.push({ reason: 'Location in chiefs letter does not match declared residence' });
-  }
-
+  const text = await extractdocumentdata(filepath);
+  if (!text) return [{ reason: "Chief's letter could not be read" }];
+  const t = normalize(text);
+  const location = normalize(guardianlocation).split(' ')[0];
+  if (!t.includes(location)) flags.push({ reason: "Location on chief's letter does not match application" });
   return flags;
 };
 
 const checkProofOfIncome = async (filepath, guardianname, guardiansincome) => {
-  const text = await extractdocumentdata(filepath);
-  if (!text) return [{ reason: 'OCR failed — proof of income could not be read' }];
-
-  const lower = text.toLowerCase();
   const flags = [];
-
-  const keywords = ['salary', 'income', 'earnings', 'employer', 'payslip', 'net pay'];
-  const found = keywords.filter(k => lower.includes(k));
-  if (found.length < 2) {
-    flags.push({ reason: 'Proof of income missing key financial keywords — may be fake' });
-  }
-  if (!namesMatch(text, guardianname)) {
-    flags.push({ reason: 'Guardian name not found in proof of income' });
-  }
-
+  const text = await extractdocumentdata(filepath);
+  if (!text) return [{ reason: 'Proof of income could not be read' }];
+  const t = normalize(text);
+  const firstName = normalize(guardianname).split(' ')[0];
+  if (!t.includes(firstName)) flags.push({ reason: 'Guardian name on income proof does not match' });
   return flags;
 };
 
 const checkDisabilityCertificate = async (filepath, nameinput, disabilitystatus) => {
-  if (disabilitystatus?.toLowerCase() !== 'disabled') return [];
-
-  const text = await extractdocumentdata(filepath);
-  if (!text) return [{ reason: 'OCR failed — disability certificate could not be read' }];
-
-  const lower = text.toLowerCase();
   const flags = [];
+  if (disabilitystatus !== 'disabled') return flags;
+  const text = await extractdocumentdata(filepath);
+  if (!text) return [{ reason: 'Disability certificate could not be read' }];
+  const t = normalize(text);
+  const firstName = normalize(nameinput).split(' ')[0];
+  if (!t.includes(firstName)) flags.push({ reason: 'Name on disability certificate does not match' });
+  return flags;
+};
 
-  const keywords = ['ncpwd', 'national council', 'persons with disabilities', 'registration', 'disability'];
-  const found = keywords.filter(k => lower.includes(k));
-  if (found.length < 3) {
-    flags.push({ reason: 'Disability certificate missing NCPWD official keywords — may be fake' });
-  }
-  if (!namesMatch(text, nameinput)) {
-    flags.push({ reason: 'Student name does not match disability certificate' });
-  }
-
-  const disabilitytypes = ['physical', 'visual', 'hearing', 'intellectual', 'psychosocial', 'developmental'];
-  const foundtype = disabilitytypes.find(d => lower.includes(d));
-  if (!foundtype) {
-    flags.push({ reason: 'Disability certificate does not specify recognized disability type' });
-  }
-
+const checkDeathCertificate = async (filepath, guardianname, orphanstatus) => {
+  const flags = [];
+  if (orphanstatus === 'Not orphan') return flags;
+  const text = await extractdocumentdata(filepath);
+  if (!text) return [{ reason: 'Death certificate could not be read' }];
+  const t = normalize(text);
+  const firstName = normalize(guardianname).split(' ')[0];
+  if (!t.includes(firstName)) flags.push({ reason: 'Name on death certificate does not match' });
   return flags;
 };
 
 module.exports = {
+  extractdocumentdata,
   checkBirthCertificate,
   checkNationalID,
-  checkKRACertificate,
   checkAdmissionLetter,
+  checkSchoolReport,
   checkChiefsLetter,
   checkProofOfIncome,
-  checkSchoolReport,
   checkDisabilityCertificate,
   checkDeathCertificate,
 };

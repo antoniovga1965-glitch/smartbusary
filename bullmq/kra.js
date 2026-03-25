@@ -10,15 +10,25 @@ const checkKRA = async (pin, guardianname, maxRetries = 5) => {
 
   try {
     
-    const session = await axios.get(
-      'https://itax.kra.go.ke/KRA-Portal/pinChecker.htm',
-      {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'
-        },
-        timeout: 60000
+    let session;
+    for (let sessionAttempt = 1; sessionAttempt <= 2; sessionAttempt++) {
+      try {
+        console.log(`KRA session fetch attempt ${sessionAttempt}...`);
+        session = await axios.get(
+          'https://itax.kra.go.ke/KRA-Portal/pinChecker.htm',
+          {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'
+            },
+            timeout: 30000
+          }
+        );
+        break;
+      } catch (sessionErr) {
+        if (sessionAttempt === 2) throw sessionErr;
+        console.log(`KRA session fetch timed out, retrying... (${sessionErr.message})`);
       }
-    );
+    }
 
     const allcookies = session.headers['set-cookie']
       ?.map(c => c.split(';')[0])
@@ -39,7 +49,7 @@ const checkKRA = async (pin, guardianname, maxRetries = 5) => {
           'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'
         },
         responseType: 'arraybuffer',
-        timeout: 10000
+        timeout: 30000
       }
     );
 
@@ -72,7 +82,7 @@ const checkKRA = async (pin, guardianname, maxRetries = 5) => {
             ...form.getHeaders(),
             'apikey': process.env.OCRAPIKEY,
           },
-          timeout: 15000
+          timeout: 30000
         }
       );
 
@@ -111,7 +121,7 @@ const checkKRA = async (pin, guardianname, maxRetries = 5) => {
             'Referer': 'https://itax.kra.go.ke/KRA-Portal/pinChecker.htm',
             'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'
           },
-          timeout: 15000
+          timeout: 30000
         }
       );
 
