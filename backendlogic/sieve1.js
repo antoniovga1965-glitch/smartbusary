@@ -159,30 +159,25 @@ const validateFiles = (req, res, next) => {
   ];
   const fileIds = req.body.fileIds;
   if (!fileIds) return res.status(422).json({ message: "No files uploaded" });
+  
   for (const field of requiredFiles) {
     const fileId = fileIds[field];
-    if (!fileId) return res.status(422).json({ message: `${field} is required` });
+    if (!fileId) {
+      return res.status(422).json({ message: `${field} is required` });
+    }
+    
     const filePath = chunkRegistry.get(fileId);
-    if (!filePath || !fs.existsSync(filePath)) {
+    if (!filePath) {
       return res.status(422).json({ message: `${field} upload incomplete` });
     }
-  }
-  next();
-};
-
-const verifyschemas = (req, res, next) => {
-  const verifiedscheme = secondaryapplicantshemas.safeParse(req.body);
-  console.log("ZOD SUCCESS:", verifiedscheme.success);
-  console.log("ZOD ERROR:", JSON.stringify(verifiedscheme.error));
-  console.log("ZOD DATA:", JSON.stringify(verifiedscheme.data));
-  if (!verifiedscheme.success) {
-    return res.status(422).json({
-      message: "Check your fields and try again",
-      errors: verifiedscheme.error?.errors?.map((e) => ({
-        field: e.path.join("."),
-        message: e.message,
-      })) || [],
-    });
+    
+    
+    const isUrl = filePath.startsWith('http://') || filePath.startsWith('https://');
+    
+    // Only check filesystem for local paths, not URLs
+    if (!isUrl && !fs.existsSync(filePath)) {
+      return res.status(422).json({ message: `${field} upload incomplete` });
+    }
   }
   next();
 };
