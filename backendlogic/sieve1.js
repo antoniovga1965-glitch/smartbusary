@@ -12,9 +12,16 @@ const crypto = require("crypto");
 const { checkBehavioralPatterns } = require("../bullmq/bottracking");
 const logger = require("../security/winston");
 const getresend = require('../helpers/email');
+const cloudinary = require('cloudinary').v2;
 
 if (!fs.existsSync("uploads")) fs.mkdirSync("uploads");
 if (!fs.existsSync("uploads_tmp")) fs.mkdirSync("uploads_tmp");
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const chunkRegistry = new Map();
 
@@ -31,9 +38,7 @@ setInterval(() => {
 router.post("/upload-chunk", (req, res) => {
   const chunks = [];
 
-  req.on('data', (chunk) => {
-    chunks.push(chunk);
-  });
+  req.on('data', (chunk) => chunks.push(chunk));
 
   req.on('end', () => {
     const body = Buffer.concat(chunks);
@@ -42,7 +47,6 @@ router.post("/upload-chunk", (req, res) => {
     if (!fileid || !chunknumber || !totalchunks || !filename) {
       return res.status(400).json({ message: "Missing chunk headers" });
     }
-
     if (!body || body.length === 0) {
       return res.status(400).json({ message: "No chunk data received" });
     }
@@ -65,13 +69,24 @@ router.post("/upload-chunk", (req, res) => {
           .sort((a, b) => parseInt(a.split("_")[1]) - parseInt(b.split("_")[1]));
 
         for (const chunkFile of chunkFiles) {
-          const chunkData = fs.readFileSync(path.join(tempDir, chunkFile));
-          writeStream.write(chunkData);
+          writeStream.write(fs.readFileSync(path.join(tempDir, chunkFile)));
         }
 
-        writeStream.end(() => {
-          console.log(`File ${filename} assembled at ${finalPath}`);
-          chunkRegistry.set(fileid, finalPath);
+        writeStream.end(async () => {
+          try {
+            const result = await cloudinary.uploader.upload(finalPath, {
+              folder: 'smartbursary',
+              resource_type: 'auto',
+              use_filename: true,
+              unique_filename: true,
+            });
+            chunkRegistry.set(fileid, result.secure_url); // 👈 store Cloudinary URL
+            console.log(`Uploaded to Cloudinary: ${result.secure_url}`);
+            fs.unlinkSync(finalPath); // delete local file
+          } catch (uploadErr) {
+            console.error(`Cloudinary upload failed: ${uploadErr.message}`);
+            chunkRegistry.set(fileid, finalPath); // fallback to local path
+          }
         });
 
         fs.rmSync(tempDir, { recursive: true, force: true });
@@ -90,6 +105,8 @@ router.post("/upload-chunk", (req, res) => {
     res.status(500).json({ message: "Stream error" });
   });
 });
+
+
 
 const limit = limitor({
   windowMs: 15 * 60 * 1000,
