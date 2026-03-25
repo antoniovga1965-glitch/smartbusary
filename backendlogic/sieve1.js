@@ -138,33 +138,24 @@ const validateFiles = (req, res, next) => {
     "schoolreport", "guardiannationalid", "proofofincome",
     "chiefsletter", "passportphoto",
   ];
-
   const fileIds = req.body.fileIds;
-  if (!fileIds) return res.status(422).json({ message: "No files uploaded" });
-
+  console.log("FILEIDS RECEIVED:", JSON.stringify(fileIds)); // 👈
+  if (!fileIds) {
+    console.log("NO FILEIDS"); // 👈
+    return res.status(422).json({ message: "No files uploaded" });
+  }
   for (const field of requiredFiles) {
     const fileId = fileIds[field];
-    if (!fileId) return res.status(422).json({ message: `${field} is required` });
-
+    if (!fileId) {
+      console.log(`MISSING FILEID: ${field}`); // 👈
+      return res.status(422).json({ message: `${field} is required` });
+    }
     const filePath = chunkRegistry.get(fileId);
+    console.log(`${field} → fileId: ${fileId} → path: ${filePath}`); // 👈
     if (!filePath || !fs.existsSync(filePath)) {
+      console.log(`FILE MISSING ON DISK: ${field}`); // 👈
       return res.status(422).json({ message: `${field} upload incomplete — please try again` });
     }
-  }
-  next();
-};
-
-// ========== SCHEMA VALIDATION MIDDLEWARE ==========
-const verifyschemas = (req, res, next) => {
-  const verifiedscheme = secondaryapplicantshemas.safeParse(req.body);
-  if (!verifiedscheme.success) {
-    return res.status(422).json({
-      message: "Check your fields and try again",
-      errors: verifiedscheme.error?.errors?.map((e) => ({
-        field: e.path.join("."),
-        message: e.message,
-      })) || [],
-    });
   }
   next();
 };
