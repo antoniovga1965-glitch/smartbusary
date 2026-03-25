@@ -152,11 +152,12 @@ const validateFiles = (req, res, next) => {
   next();
 };
 
-
 const verifyschemas = (req, res, next) => {
   const verifiedscheme = secondaryapplicantshemas.safeParse(req.body);
+  console.log("ZOD SUCCESS:", verifiedscheme.success);
+  console.log("ZOD ERROR:", JSON.stringify(verifiedscheme.error));
+  console.log("ZOD DATA:", JSON.stringify(verifiedscheme.data));
   if (!verifiedscheme.success) {
-    console.log("ZOD ERRORS:", JSON.stringify(verifiedscheme.error?.errors));
     return res.status(422).json({
       message: "Check your fields and try again",
       errors: verifiedscheme.error?.errors?.map((e) => ({
@@ -167,7 +168,6 @@ const verifyschemas = (req, res, next) => {
   }
   next();
 };
-
 // ========== DEVICE FINGERPRINT ==========
 const generateDeviceFingerprint = (req) => {
   const components = [
