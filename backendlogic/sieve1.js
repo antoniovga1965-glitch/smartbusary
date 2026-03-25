@@ -28,12 +28,7 @@ setInterval(() => {
   }
 }, 30 * 60 * 1000);
 
-router.post("/upload-chunk", (req, res, next) => {
-  express.raw({ type: "*/*", limit: "2mb" })(req, res, (err) => {
-    if (err) return res.status(500).json({ message: "Body parse error" });
-    next();
-  });
-}, (req, res) => {
+router.post("/upload-chunk", express.raw({ type: "*/*", limit: "10mb" }), (req, res) => {
   try {
     const { fileid, chunknumber, totalchunks, filename } = req.headers;
 
@@ -41,7 +36,6 @@ router.post("/upload-chunk", (req, res, next) => {
       return res.status(400).json({ message: "Missing chunk headers" });
     }
 
-    
     if (!req.body || !Buffer.isBuffer(req.body) || req.body.length === 0) {
       return res.status(400).json({ message: "No chunk data received" });
     }
@@ -50,7 +44,7 @@ router.post("/upload-chunk", (req, res, next) => {
     if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
 
     const chunkPath = path.join(tempDir, `chunk_${chunknumber}`);
-    fs.writeFileSync(chunkPath, req.body); 
+    fs.writeFileSync(chunkPath, req.body);
 
     const receivedChunks = fs.readdirSync(tempDir).filter(f => f.startsWith("chunk_")).length;
 
@@ -76,6 +70,7 @@ router.post("/upload-chunk", (req, res, next) => {
     }
 
     res.json({ message: `Chunk ${chunknumber} uploaded` });
+
   } catch (err) {
     console.error("Error handling chunk upload:", err);
     res.status(500).json({ message: "Server error uploading chunk" });
