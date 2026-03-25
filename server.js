@@ -6,7 +6,7 @@ const cookieparser = require('cookie-parser');
 
 
 app.use((req, res, next) => {
-  if (req.path === '/upload-chunk') return next();
+  if (req.path === '/secondary/upload-chunk') return next();
   express.json()(req, res, next);
 });
 app.use(express.static('public'));
