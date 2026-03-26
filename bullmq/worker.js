@@ -2,10 +2,11 @@ const { Worker } = require("bullmq");
 const connection = require("../bullmq/connection");
 const prisma = require("../prisma.client");
 const axios = require("axios");
-const { checkMultiYearConsistency } = require('./multiyearcons');
-const { culcateFraudscore, getstatus } = require('./scoreengine');
+const https = require("https");
 const logger = require('../security/winston');
-const https = require('https');
+
+const { checkMultiYearConsistency } = require('./multiyearcons');
+const { calculateFraudscore, getstatus } = require('./scoreengine');
 const { checkface } = require('./facehash');
 const getresend = require('../helpers/email');
 const { checkKRA } = require("./kra");
@@ -35,7 +36,6 @@ const worker = new Worker(
     const flags = [];
     let govKnecCode = null;
 
-    // ✅ Normalize inputs once
     const firstname = nameinput?.split(" ")[0]?.toLowerCase() || "";
     const schoolfirst = schoolname?.split(" ")[0]?.toLowerCase() || "";
 
@@ -43,20 +43,26 @@ const worker = new Worker(
 
     // ------------------ DUPLICATE CHECKS ------------------
     const [krareuse, idreuse, birthcertuse, ipadresscount] = await Promise.all([
-      prisma.Application.count({ where: { Guardian_krapin, NOT: { id: applicationid } } }),
-      prisma.Application.count({ where: { guardianID, NOT: { id: applicationid } } }),
-      prisma.Application.count({ where: { bithcertno, NOT: { id: applicationid } } }),
-      prisma.Application.count({ where: { Ipaddress, NOT: { id: applicationid } } }),
+      prisma.Application.count({
+        where: { Guardian_krapin, NOT: { id: applicationid } },
+      }),
+      prisma.Application.count({
+        where: { guardianID, NOT: { id: applicationid } },
+      }),
+      prisma.Application.count({
+        where: { bithcertno, NOT: { id: applicationid } },
+      }),
+      prisma.Application.count({
+        where: { Ipaddress, NOT: { id: applicationid } },
+      }),
     ]);
 
-    if (krareuse > 0) flags.push({ reason: 'KRA pin already used in other applications' });
-    if (idreuse > 0) flags.push({ reason: 'ID already used in another application' });
-    if (birthcertuse > 0) flags.push({ reason: 'Birth certificate reused' });
+    if (krareuse) flags.push({ reason: 'KRA pin already used in other applications' });
+    if (idreuse) flags.push({ reason: 'ID already used in another application' });
+    if (birthcertuse) flags.push({ reason: 'Birth certificate reused' });
     if (ipadresscount > 50) flags.push({ reason: 'Too many applications from same IP' });
 
     // ------------------ KNEC CHECK ------------------
-    let knecStudent = null;
-
     try {
       const knecRes = await axios.get(
         "https://kjsea.knec.ac.ke/api/search",
@@ -71,16 +77,14 @@ const worker = new Worker(
         }
       );
 
-      knecStudent = knecRes.data;
+      const knecStudent = knecRes.data;
 
       if (!knecStudent?.candidateName?.toLowerCase().includes(firstname)) {
         flags.push({ reason: "Name mismatch with KNEC" });
       }
 
       const g = knecStudent.gender?.toLowerCase();
-      let knecGender = null;
-      if (g === "m" || g === "male") knecGender = "male";
-      else if (g === "f" || g === "female") knecGender = "female";
+      const knecGender = (g === 'm' || g === 'male') ? 'male' : (g === 'f' || g === 'female') ? 'female' : null;
 
       if (knecGender && knecGender !== gender?.toLowerCase()) {
         flags.push({ reason: "Gender mismatch with KNEC" });
@@ -93,7 +97,6 @@ const worker = new Worker(
       govKnecCode = knecStudent.centreCode || null;
 
       logger.info(`KNEC OK: ${knecStudent.candidateName}`);
-
     } catch (error) {
       flags.push({ reason: "KNEC unavailable" });
       logger.error(`KNEC failed: ${error.message}`);
@@ -102,8 +105,8 @@ const worker = new Worker(
     // ------------------ KRA ------------------
     try {
       const kraresults = await checkKRA(Guardian_krapin, guardianname);
-      flags.push(...kraresults.flags);
-    } catch (error) {
+      if (kraresults.flags?.length) flags.push(...kraresults.flags);
+    } catch {
       flags.push({ reason: "KRA verification failed" });
     }
 
@@ -120,11 +123,11 @@ const worker = new Worker(
         checkDeathCertificate(files.deathcertificate, guardianname, orphanstatus),
       ]);
 
-      results.forEach(r => flags.push(...r));
-
-    } catch (error) {
+      results.forEach(r => {
+        if (Array.isArray(r)) flags.push(...r);
+      });
+    } catch {
       flags.push({ reason: "OCR processing failed" });
-      logger.error(error.message);
     }
 
     // ------------------ MULTI-YEAR ------------------
@@ -133,15 +136,15 @@ const worker = new Worker(
         applicationid, nameinput, bithcertno, Assesmentno,
         currentform, schoolname, kcpeyear, dob
       );
-      flags.push(...yearflags);
-    } catch (error) {
+      if (yearflags?.length) flags.push(...yearflags);
+    } catch {
       flags.push({ reason: "Multi-year validation failed" });
     }
 
     // ------------------ FACE ------------------
     try {
       const { flags: faceflags, descriptor } = await checkface(files.passportphoto, applicationid);
-      flags.push(...faceflags);
+      if (faceflags?.length) flags.push(...faceflags);
 
       if (descriptor) {
         await prisma.Application.update({
@@ -154,7 +157,7 @@ const worker = new Worker(
     }
 
     // ------------------ FINAL SCORE ------------------
-    const fraudscore = culcateFraudscore(flags);
+    const fraudscore = calculateFraudscore(flags);
     const status = getstatus(fraudscore);
 
     await prisma.Application.update({
@@ -163,24 +166,33 @@ const worker = new Worker(
     });
 
     // ------------------ EMAIL ------------------
-    try {
-      if (personalemail) {
-        const send = getresend();
-
-        await send.emails.send({
-          from: 'onboarding@resend.dev',
-          to: personalemail,
-          subject: `Application ${status}`,
-          html: `<p>Status: ${status}</p><p>Score: ${fraudscore}</p>`
-        });
-
-        logger.info(`Email sent to ${personalemail}`);
-      }
-    } catch (e) {
-      logger.error(`Email failed: ${e.message}`);
+    if (personalemail) {
+      const send = getresend();
+      await send.emails.send({
+        from: 'onboarding@resend.dev',
+        to: personalemail,
+        subject: `Application ${status} — Smart Bursary Portal`,
+        html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: ${status === 'verified' ? '#166534' : status === 'Manual review' ? '#ca8a04' : '#dc2626'}; border-bottom: 2px solid currentColor; padding-bottom: 10px;">
+            ${status === 'verified' ? 'Application Approved' : status === 'Manual review' ? 'Under Review 🔍' : 'Application Rejected'}
+          </h2>
+          <p>Hello <strong>${nameinput}</strong>,</p>
+          ${status === 'verified' ? '<p>Congratulations! Your bursary application has passed all verification checks.</p>'
+            : status === 'Manual review' ? '<p>Your application requires additional manual review by our team.</p>'
+            : '<p>Unfortunately your application did not pass our verification checks.</p>'
+          }
+          <div style="background: #f0fdf4; border-left: 4px solid #166534; padding: 15px; margin: 20px 0;">
+            <p><strong>Application ID:</strong> ${applicationid}</p>
+            <p><strong>Status:</strong> ${status}</p>
+            <p><strong>Fraud Score:</strong> ${fraudscore}</p>
+            <p><strong>Processed:</strong> ${new Date().toLocaleDateString('en-KE')}</p>
+          </div>
+          <p style="color: #666; font-size: 13px;">For queries contact <a href="mailto:hello@smartbursary.co.ke">hello@smartbursary.co.ke</a></p>
+        </div>`
+      });
+      logger.info(`Result email sent to ${personalemail} — ${status}`);
     }
 
-    logger.warn(`Application ${applicationid} → ${status}`);
     return { applicationid, flags, status };
   },
   { connection, concurrency: 5 }
