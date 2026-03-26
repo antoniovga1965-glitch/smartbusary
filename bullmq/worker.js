@@ -157,7 +157,7 @@ const worker = new Worker(
     }
 
     // ------------------ FINAL SCORE ------------------
-    const fraudscore = calculateFraudscore(flags);
+   const fraudscore = culcateFraudscore(flags);
     const status = getstatus(fraudscore);
 
     await prisma.Application.update({
