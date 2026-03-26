@@ -145,6 +145,12 @@ const checkKRA = async (pin, guardianname, maxRetries = 5) => {
         continue;
       }
 
+      if (pinIdx === -1) {
+  console.log('PIN Details not found, retrying...');
+  console.log('Page snippet:', cells.slice(0, 10)); // see what KRA actually returned
+  continue;
+}
+
       const taxpayername = cells[pinIdx + 4];
       const pinstatus = cells[pinIdx + 6];
       const station = cells[pinIdx + 10];
