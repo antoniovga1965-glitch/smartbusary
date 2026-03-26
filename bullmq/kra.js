@@ -41,7 +41,11 @@ const checkKRA = async (pin, guardianname, maxRetries = 5) => {
     const captchasrc = $('img[name="captcha_img"]').attr('src');
     if (!captchasrc) throw new Error('Failed to find CAPTCHA image');
 
-    const captchaRes = await axios.get(
+    
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      console.log(`Attempt ${attempt}...`);
+      const captchaRes = await axios.get(
       `https://itax.kra.go.ke${captchasrc}`,
       {
         headers: {
@@ -52,10 +56,6 @@ const checkKRA = async (pin, guardianname, maxRetries = 5) => {
         timeout: 30000
       }
     );
-
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      console.log(`Attempt ${attempt}...`);
-
       
       const processed = await sharp(Buffer.from(captchaRes.data))
         .resize({ width: 400 })
