@@ -6,7 +6,7 @@ const https = require("https");
 const logger = require('../security/winston');
 
 const { checkMultiYearConsistency } = require('./multiyearcons');
-const { calculateFraudscore, getstatus } = require('./scoreengine');
+const { culcateFraudscore, getstatus } = require('./scoreengine');
 const { checkface } = require('./facehash');
 const getresend = require('../helpers/email');
 const { checkKRA } = require("./kra");
