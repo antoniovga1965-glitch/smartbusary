@@ -46,35 +46,58 @@ const worker = new Worker(
     if (birthcertuse > 0) flags.push({ reason: 'Birth certificate number already used somewhere else' });
     if (ipadresscount > 50) flags.push({ reason: 'More than 50 applications coming from this IP' });
 
-    const ministryRequestOptions = {
-      params: { assessment_number: Assesmentno },
+
+    
+ try {
+  const knecRes = await axios.get(
+    "https://kjsea.knec.ac.ke/api/search",
+    {
+      params: { 
+        assessmentNumber: Assesmentno, 
+        name: nameinput.split(" ")[0] // first name only
+      },
       headers: {
-        Accept: "application/json",
-        Referer: "https://selection.education.go.ke/my-selections",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Accept": "application/json",
+        "Referer": "https://kjsea.knec.ac.ke/"
       },
       httpsAgent: new https.Agent({ rejectUnauthorized: false }),
       timeout: 30000,
-    };
+    }
+  );
 
-    try {
-      let ministryRes;
-      try {
-        ministryRes = await axios.get(
-          "https://selection.education.go.ke/api/api/v1/open/verify-selection",
-          ministryRequestOptions
-        );
-      } catch (firstError) {
-        const isTimeout = firstError.code === "ECONNABORTED" || firstError.message?.includes("timeout");
-        if (isTimeout) {
-          logger.warn(`Ministry API timed out on first attempt for ${Assesmentno}, retrying...`);
-          ministryRes = await axios.get(
-            "https://selection.education.go.ke/api/api/v1/open/verify-selection",
-            ministryRequestOptions
-          );
-        } else {
-          throw firstError;
-        }
-      }
+  const student = knecRes.data;
+
+  // Name check
+  if (!student.candidateName?.toLowerCase().includes(nameinput?.toLowerCase().split(" ")[0])) {
+    flags.push({ reason: "Student name doesn't match KNEC records" });
+  }
+
+  // Gender check
+  const knecGender = student.gender?.trim().toLowerCase() === "m" ? "male" : "female";
+  if (knecGender !== gender?.toLowerCase()) {
+    flags.push({ reason: "Gender does not match KNEC records" });
+  }
+
+  // School check
+  if (!student.centreName?.toLowerCase().includes(schoolname?.toLowerCase().split(" ")[0])) {
+    flags.push({ reason: "School name does not match KNEC centre" });
+  }
+
+  // Save centre code for school report cross-check
+  govKnecCode = student.centreCode || null;
+
+  logger.info(`KNEC check: ${student.candidateName} | ${student.gender} | ${student.centreName} | Code: ${govKnecCode}`);
+
+} catch (error) {
+  const isTimeout = error.code === "ECONNABORTED" || error.message?.includes("timeout");
+  if (isTimeout) {
+    flags.push({ reason: "KNEC database did not respond in time" });
+  } else {
+    flags.push({ reason: "Could not reach KNEC database" });
+  }
+  logger.error(`KNEC API failed for assessment ${Assesmentno}: ${error.message}`);
+}
 
       const data = ministryRes.data;
       if (!data.success) {
